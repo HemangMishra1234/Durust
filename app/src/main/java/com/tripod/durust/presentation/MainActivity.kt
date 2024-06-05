@@ -1,5 +1,7 @@
 package com.tripod.durust.presentation
 
+import CircleRevealPager
+import LiquidPagerScreen
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -7,11 +9,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -22,6 +32,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.google.ai.client.generativeai.Chat
 import com.google.firebase.auth.FirebaseAuth
 import com.tripod.durust.BakingScreen
 import com.tripod.durust.BaseApplication
@@ -30,6 +41,7 @@ import com.tripod.durust.data.AlarmItem
 import com.tripod.durust.data.AndroidAlarmSchedular
 import com.tripod.durust.data.HealthConnectAvailability
 import com.tripod.durust.data.HealthConnectManager
+import com.tripod.durust.presentation.datacollection.ChatScreen
 import com.tripod.durust.presentation.login.createaccount.CreateAccountPasswordScreen
 import com.tripod.durust.presentation.login.createaccount.CreateAccountViewModel
 import com.tripod.durust.presentation.login.createaccount.CreateAccountViewModelFactory
@@ -42,8 +54,10 @@ import com.tripod.durust.presentation.login.login.LoginViewModel
 import com.tripod.durust.presentation.login.login.LoginViewModelFactory
 import com.tripod.durust.presentation.login.emailverification.VerificationSuccess
 import com.tripod.durust.presentation.login.emailverification.VerifyEmail
+import com.tripod.durust.presentation.onboarding.MainScreen
 import com.tripod.durust.presentation.onboarding.OnBoardingScreen
 import com.tripod.durust.ui.theme.DurustTheme
+
 
 class MainActivity : ComponentActivity() {
 
@@ -73,10 +87,14 @@ class MainActivity : ComponentActivity() {
                     composable<NavTest>{
 //                        TrackWeight(healthConnectManager)
 //                        AlarmUI(schedular = schedular)
-//                        LogInSuccess()
-//                        VerificationSuccess()
-                        BakingScreen()
+                        LogInSuccess(navController)
+//                        VerificationSuccess(navController)
+//                        BakingScreen()
+//                        ChatScreen()
+//                        CircleRevealPager()
+//                        LiquidPagerScreen(context = this@MainActivity)
                     }
+
                     composable<NavCreateAccountEmailScreen>{
                         CreateAccountEmailScreen(viewModel = createAccountViewModel, navController = navController)
                     }
@@ -96,7 +114,7 @@ class MainActivity : ComponentActivity() {
                         LogInScreen(loginViewModel, navController)
                     }
                     composable<NavVerificationSuccessScreen>{
-                        VerificationSuccess()
+                        VerificationSuccess(navController)
                     }
                     composable<NavLoginSuccessScreen>{
                         LogInSuccess(navController)
@@ -108,7 +126,14 @@ class MainActivity : ComponentActivity() {
                     composable<NavForgotPassword> { 
                         ForgotPassword(navController = navController)
                     }
-                    composable<NavBakingScreen> {
+                    composable<NavBakingScreen>(
+                        enterTransition = {
+
+                            expandHorizontally(animationSpec = tween(1000))
+//                            slideInHorizontally(animationSpec = tween(1000),
+//                                initialOffsetX = { fullWidth->fullWidth })
+                        }
+                            ){
                         BakingScreen()
                     }
                 }

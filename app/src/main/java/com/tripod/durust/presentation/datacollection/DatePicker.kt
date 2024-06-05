@@ -47,7 +47,7 @@ fun DatePickerCardPreview() {
 //            isEnabled = true,
 //            onDateChanged = {}
 //        )
-        HeightPickerCard()
+//        HeightPickerCard()
     }
 }
 
@@ -66,9 +66,9 @@ fun DatePickerCard(initialDate : DateEntity,isEnabled: Boolean, onDateChanged:(D
         try {
             Log.i(
                 "DatePickerCard",
-                "yearState: ${yearState.selectedItem}, monthState: ${monthState.selectedItem}, dayState: ${dayState.selectedItem}"
+                "yearState: ${yearState.selectedItem + 1}, monthState: ${monthState.selectedItem + 1}, dayState: ${dayState.selectedItem + 1}"
             )
-        onDateChanged(DateEntity(year = yearState.selectedItem.toInt(), month = months.indexOf(monthState.selectedItem) + 1, day = dayState.selectedItem.toInt()))
+        onDateChanged(DateEntity(year = yearState.selectedItem.toInt() + 1, month = months.indexOf(monthState.selectedItem) + 2, day = dayState.selectedItem.toInt() + 1))
         }catch (_: Exception){
         }
     }
@@ -193,7 +193,7 @@ fun DatePickerCard(initialDate : DateEntity,isEnabled: Boolean, onDateChanged:(D
 }
 
 @Composable
-private fun HeadingCard(text: String){
+fun HeadingCard(text: String){
     Card(
         shape = RoundedCornerShape(size = 9.44976.dp),
         colors = CardDefaults.cardColors(

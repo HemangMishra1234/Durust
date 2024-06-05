@@ -1,6 +1,7 @@
 package com.tripod.durust.presentation.datacollection
 
 import Picker
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,7 +20,7 @@ import com.tripod.durust.R
 import rememberPickerState
 
 @Composable
-fun HeightPickerCard() {
+fun HeightPickerCard(initialHeight: String, isEnabled: Boolean, onHeightChange: (String) -> Unit) {
     val heights = remember {
         listOf(
             "3'0", "3'1", "3'2", "3'3", "3'4", "3'5", "3'6", "3'7", "3'8", "3'9", "3'10", "3'11",
@@ -35,6 +36,16 @@ fun HeightPickerCard() {
 
     }
     val heightState = rememberPickerState()
+    LaunchedEffect(heightState.selectedItem) {
+        try {
+            Log.i("Selected Item", heightState.selectedItem)
+            onHeightChange(heightState.selectedItem)
+        }
+        catch (_: Exception){
+        }
+    }
+
+
 
     Card(
         shape = RoundedCornerShape(20.dp),
@@ -61,10 +72,11 @@ fun HeightPickerCard() {
                     contentDescription = "Height illustration",
                     modifier = Modifier
                         .width(123.93639.dp)
-                        .padding(18.dp,0.dp,0.dp,0.dp)
+                        .padding(18.dp, 0.dp, 0.dp, 0.dp)
                         .height(295.00354.dp)
                 ) // Placeholder for illustration
             }
+            if(isEnabled)
             Picker(
                 items = heights,
                 state = heightState,
@@ -72,7 +84,18 @@ fun HeightPickerCard() {
                 textStyle = TextStyle(fontSize = 18.sp),
                 modifier = Modifier.weight(1f),
                 textModifier = Modifier.height(28.dp)
-            )
+            )else
+                Card(
+                    modifier = Modifier
+                        .height(32.dp)
+                        .width(100.dp)
+                ) {
+                    Box(modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center) {
+                        Text(text = initialHeight)
+                    }
+                }
+
             Image(painter = painterResource(id = R.drawable.heightpointer),
                 contentDescription = "Height illustration")
         }
@@ -82,5 +105,5 @@ fun HeightPickerCard() {
 @Preview(showBackground = true)
 @Composable
 fun HeightPickerCardPreview() {
-    HeightPickerCard()
+//    HeightPickerCard()
 }

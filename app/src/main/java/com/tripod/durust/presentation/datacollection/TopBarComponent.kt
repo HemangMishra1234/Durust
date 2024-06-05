@@ -7,13 +7,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,8 +35,46 @@ import com.tripod.durust.R
 import com.tripod.durust.ui.theme.DurustTheme
 import com.tripod.durust.ui.theme.bodyFontFamily
 
+
 @Composable
-fun Stepper(selectedStep :Int = 1   ) {
+fun NameInputTextField(name: String, isActive: Boolean, onNameChange: (String)->Unit){
+    var nameIn by remember {
+        mutableStateOf(name)
+    }
+    Box(modifier = Modifier
+        .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 16.dp))
+        .background(Color.White)
+    ){
+        OutlinedTextField(value = nameIn, onValueChange = {
+            onNameChange(it)
+            nameIn = it
+        }, enabled = isActive,
+            modifier = Modifier,
+            placeholder = {
+                Text(
+                    text = "Enter your name",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = bodyFontFamily,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFA0A0A0),
+                    ),
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledTextColor = Color.Black
+            )
+            )
+        }
+}
+
+@Composable
+fun TopChatBar(selectedStep :Int = 1   ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -77,14 +118,14 @@ fun Stepper(selectedStep :Int = 1   ) {
 }
 
 @Composable
-fun CircleItem() {
+private fun CircleItem() {
     Box( modifier = Modifier
         .size(16.dp)
         .background(color = Color(0xFFFF6F61), shape = CircleShape))
 }
 
 @Composable
-fun StepItem(number: Int, isSelected: Boolean) {
+private fun StepItem(number: Int, isSelected: Boolean) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -125,7 +166,7 @@ fun StepItem(number: Int, isSelected: Boolean) {
 }
 
 @Composable
-fun ChatRow(imageResId: Int, chatText: String) {
+fun ChatRow(imageResId: Int = R.drawable.assistanticon, chatText: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,123 +211,10 @@ fun NextImageButton(isEnabledT: Boolean,modifier: Modifier, onClick:() -> Unit){
             .width(if (isEnabled) 71.dp else 50.dp)
             .animateContentSize(animationSpec = tween(300))
             .height(if (isEnabled) 71.dp else 50.dp)
+            .clip(CircleShape)
             .clickable {
+                if(isEnabled)
                 onClick()
-                isEnabled = !isEnabled
             }
     )
-}
-
-@Composable
-private fun GenderCard(
-    gender: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val backgroundColor = if (isSelected) {
-        when (gender) {
-            "Male" ->  Color(0xFF9BDBFF)
-            "Female" ->  Color(0xFFFF9BF5)
-            "Other" -> Color(0xFFFDDC9E)
-            else -> Color.LightGray
-        }
-    } else {
-        when (gender) {
-            "Male" ->  Color(0x80ABE1FF)
-            "Female" ->  Color(0x80FF9BF5)
-            "Other" -> Color(0x80FDDC9E)
-            else -> Color.LightGray
-        }
-    }
-    val imageResId = when(gender){
-        "Male" -> R.drawable.maleicon
-        "Female"-> R.drawable.othersicon
-        else -> R.drawable.othersicon
-    }
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
-            .padding(0.73617.dp)
-            .width(98.05898.dp)
-            .height(125.14806.dp)
-            .clickable { onClick() }
-            .border(if (isSelected) 2.dp else 0.dp, Color(0xFF151F55), RoundedCornerShape(8.dp))
-    ) {
-        Column(
-            modifier = Modifier
-                .background(backgroundColor)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = gender,
-                style = TextStyle(
-                    fontSize = 11.78.sp,
-                    lineHeight = 15.46.sp,
-                    fontFamily = bodyFontFamily,
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFF454547),
-                )
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            // Replace the icon with your own drawables
-            Icon(
-                painter = painterResource(id = imageResId),
-                contentDescription = null,
-                modifier = Modifier.size(60.dp)
-            )
-
-        }
-    }
-}
-
-@Composable
-fun GenderSelection(selectedGenderIn: String? = null,isClickable: Boolean, onClick: (selectedGender: String?) -> Unit) {
-    var selectedGender by remember { mutableStateOf(selectedGenderIn) }
-    Row(
-        modifier = Modifier
-            .shadow(
-                elevation = 3.5.dp,
-                spotColor = Color(0x40000000),
-                ambientColor = Color(0x40000000)
-            )
-            .border(
-                width = 1.dp,
-                color = Color(0xFFEEF6F8),
-                shape = RoundedCornerShape(size = 12.5.dp)
-            )
-            .width(329.dp)
-            .height(153.dp)
-            .padding(start = 9.dp, top = 13.49998.dp, end = 8.70682.dp, bottom = 13.37389.dp)
-                ,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        GenderCard(
-            gender = "Male",
-            isSelected = selectedGender == "Male",
-            onClick =  { if(isClickable) {
-                selectedGender = "Male"
-                onClick(selectedGender)
-            }}
-        )
-        Spacer(modifier = Modifier.width(9.dp))
-        GenderCard(
-            gender = "Female",
-            isSelected = selectedGender == "Female",
-            onClick = { if(isClickable) {
-                selectedGender = "Female"
-                onClick(selectedGender)
-            }}
-        )
-        Spacer(modifier = Modifier.width(9.dp))
-        GenderCard(
-            gender = "Other",
-            isSelected = selectedGender == "Other",
-            onClick = { if(isClickable) {
-                selectedGender = "Other"
-                onClick(selectedGender)
-            }}
-        )
-    }
 }

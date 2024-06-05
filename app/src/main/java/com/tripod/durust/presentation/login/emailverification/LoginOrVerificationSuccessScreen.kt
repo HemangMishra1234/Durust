@@ -98,19 +98,20 @@ fun LogInSuccess(navController: NavController) {
                             if(!imageVisible)
                                 Spacer(modifier = Modifier.height(300.dp))
                     }
-                    item {
-                        Spacer(modifier = Modifier.height(60.dp))
-                        AppButton(modifier = Modifier.width(314.dp),
-                            text = "Next", isEnabled = true){
-                            navController.navigate(NavBakingScreen)
-                        }
-                    }
-                    item {
-                        Spacer(modifier =Modifier.height(24.dp))
-                        BottomRowOfLoginSuccess()
-                    }
-
                 }
+            }
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(60.dp))
+                AppButton(modifier = Modifier.width(314.dp),
+                    text = "Next", isEnabled = true){
+                    navController.navigate(NavBakingScreen)
+                }
+                Spacer(modifier =Modifier.height(24.dp))
+                BottomRowOfLoginSuccess()
+                Spacer(modifier = Modifier.height(52.dp))
             }
             Column(
                 modifier = Modifier
@@ -133,8 +134,8 @@ fun LogInSuccess(navController: NavController) {
 }
 
 @Composable
-@Preview(showBackground = true)
-fun VerificationSuccess() {
+//@Preview(showBackground = true)
+fun VerificationSuccess(navController: NavController) {
     var imageVisible by remember {
         mutableStateOf(false)
     }
@@ -180,6 +181,7 @@ fun VerificationSuccess() {
                         AppButton(modifier = Modifier.width(314.dp),
                             text = "Next", isEnabled = true){
                             //Continue here with logic
+                            navController.navigate(NavBakingScreen)
                         }
                     }
                     item {

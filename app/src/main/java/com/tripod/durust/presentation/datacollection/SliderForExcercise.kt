@@ -8,30 +8,30 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tripod.durust.R
-import java.time.format.TextStyle
+import com.tripod.durust.ui.theme.bodyFontFamily
 import kotlin.math.roundToInt
 
 @Composable
-fun DaysSlider() {
-    var sliderPosition by remember { mutableStateOf(0f) }
+fun DaysSlider(initalSliderPosition: Int, isEnabled: Boolean, onDaysChange: (Int) -> Unit) {
+    var sliderPosition by remember { mutableStateOf(initalSliderPosition) }
     val sliderRange = 0f..7f
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .background(Color(0xFF6887FE), RoundedCornerShape(8.dp))
             .padding(8.dp)
             .width(200.dp)
-            .height(123.dp)
+            .height(140.dp)
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -41,6 +41,7 @@ fun DaysSlider() {
             var sliderWidth by remember { mutableStateOf(0) }
 
             Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .padding(bottom = 8.dp)
                     .offset {
@@ -54,18 +55,20 @@ fun DaysSlider() {
             ) {
                 Image(painterResource(id = R.drawable.pointer),contentDescription = null)
                 Text(
-                    text = sliderPosition.roundToInt().toString(),
+                    text = sliderPosition.toString(),
                     style = androidx.compose.ui.text.TextStyle(
-                        fontSize = 20.sp,
+                        fontSize = 14.sp,
                         color = Color.Black
                     )
                 )
             }
             Slider(
-                value = sliderPosition,
-                onValueChange = { sliderPosition = it },
+                value = sliderPosition.toFloat(),
+                onValueChange = { sliderPosition = it.roundToInt()
+                                onDaysChange(it.roundToInt())},
                 valueRange = sliderRange,
                 steps = 7,
+                enabled = isEnabled,
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .fillMaxWidth()
@@ -81,15 +84,18 @@ fun DaysSlider() {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .padding(top = 8.dp)
+                    .padding(top = 2.dp)
                     .background(Color(0xFFB3C7FE), RoundedCornerShape(8.dp))
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
+
                 Text(
-                    text = "${sliderPosition.roundToInt()} Days",
-                    style = androidx.compose.ui.text.TextStyle(
-                        fontSize = 20.sp,
-                        color = Color.Black
+                    text = "${sliderPosition} Days",
+                    style = TextStyle(
+                        fontSize = 14.6.sp,
+                        fontFamily = bodyFontFamily,
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFF454547),
                     )
                 )
             }
@@ -100,5 +106,5 @@ fun DaysSlider() {
 @Preview(showBackground = true)
 @Composable
 fun DaysSliderPreview() {
-    DaysSlider()
+//    DaysSlider()
 }

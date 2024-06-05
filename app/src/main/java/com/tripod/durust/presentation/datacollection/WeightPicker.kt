@@ -133,7 +133,6 @@ fun WeightPickerCard(initialWeight: Int = 0, isEnabled: Boolean,onWeightChanged:
             Spacer(modifier =Modifier.width(16.29.dp))
         }
     }
-    Text("text = ${weight.value}")
 }
 
 @Composable

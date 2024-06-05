@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+
 android {
     namespace = "com.tripod.durust"
     compileSdk = 34
@@ -53,6 +54,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -69,6 +71,7 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.googleid)
     implementation(libs.androidx.viewpager2)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -83,4 +86,7 @@ dependencies {
     implementation(libs.androidx.connect.client)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation("com.cuberto:liquid-swipe:1.0.0")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }
