@@ -2,7 +2,6 @@ package com.tripod.durust.presentation.datacollection
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -25,7 +24,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,7 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.google.ai.client.generativeai.type.content
 import com.tripod.durust.R
 import com.tripod.durust.ui.theme.bodyFontFamily
 import kotlin.math.absoluteValue
@@ -47,9 +44,9 @@ fun PreviewCarouselView() {
         .background(Color(0xFF7788F4)),
         contentAlignment = Alignment.Center) {
 
-        CarouselView(
+        ExercisePreferenceUI(
             inactiveValue = ExerciseType.GYM,
-            isActive = false,
+            isActive = true,
             modifier = Modifier
                 .width(280.dp)
                 .height(250.dp)
@@ -60,7 +57,7 @@ fun PreviewCarouselView() {
 }
 
 @Composable
-fun CarouselView(inactiveValue: ExerciseType,modifier: Modifier,isActive: Boolean ,onExerciseSelected: (ExerciseType) -> Unit) {
+fun ExercisePreferenceUI(inactiveValue: ExerciseType, modifier: Modifier, isActive: Boolean, onExerciseSelected: (ExerciseType) -> Unit) {
     val exercises = if(isActive)ExerciseType.entries else listOf(inactiveValue)
     val pagerState = rememberPagerState(){exercises.size}
     var selectedExercise = exercises[pagerState.currentPage]
@@ -155,6 +152,6 @@ enum class ExerciseType(val exerciseName: String, val imageId: Int) {
     SPORTS("Sports", R.drawable.excercisesports),
     GYM("Gym", R.drawable.excercisegym),
     YOGA("Yoga", R.drawable.excerciseyogs),
-    WALKING("Walking", R.drawable.excercise_walking2),
+    WALKING("Walking", R.drawable.walking5),
     RUNNING("Running", R.drawable.excercise_running),
 }

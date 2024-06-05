@@ -18,7 +18,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -31,6 +34,83 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tripod.durust.ui.theme.bodyFontFamily
 
+data class WakeSleepEntity(
+    val wakeTime: TimeEntity,
+    val sleepTime: TimeEntity
+)
+fun wakeSleepEntityToString(wakeSleepEntity: WakeSleepEntity): String {
+    return "${wakeSleepEntity.wakeTime.hour}:${wakeSleepEntity.wakeTime.minute} ${wakeSleepEntity.wakeTime.amPm}," +
+            "${wakeSleepEntity.sleepTime.hour}:${wakeSleepEntity.sleepTime.minute} ${wakeSleepEntity.sleepTime.amPm}"
+}
+
+fun stringToWakeSleepEntity(timeString: String): WakeSleepEntity {
+    val times = timeString.split(",")
+    val wakeUpTimeParts = times[0].split(":"," ")
+    val sleepTimeParts = times[1].split(":"," ")
+
+    val wakeUpTime = TimeEntity(wakeUpTimeParts[0].toInt(), wakeUpTimeParts[1].toInt(), wakeUpTimeParts[2])
+    val sleepTime = TimeEntity(sleepTimeParts[0].toInt(), sleepTimeParts[1].toInt(), sleepTimeParts[2])
+
+    return WakeSleepEntity(wakeUpTime, sleepTime)
+}
+
+@Composable
+fun WakeUpTimeAndBedTime(initialSchedule: WakeSleepEntity, isEnabled: Boolean ,onTimeChanged: (WakeSleepEntity) -> Unit){
+    var wakeTime by remember { mutableStateOf(initialSchedule.wakeTime) }
+    var sleepTime by remember { mutableStateOf(initialSchedule.sleepTime) }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Wake up time",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontFamily = bodyFontFamily,
+                fontWeight = FontWeight(400),
+                color = Color(0xFFEEF6F8),
+                textAlign = TextAlign.Center,
+            )
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        TimePickerCard(
+            initialHour = initialSchedule.wakeTime.hour,
+            initialMinute = initialSchedule.wakeTime.minute,
+            initialAmPm = initialSchedule.wakeTime.amPm,
+            isEnabled = isEnabled,
+            onTimeChanged = { hour, minute, amPm ->
+                Log.i("WakeUpTimeAndBedTime", "hour: $hour, minute: $minute, amPm: $amPm")
+                wakeTime = TimeEntity(hour, minute, amPm)
+                onTimeChanged(WakeSleepEntity(wakeTime, sleepTime))
+            }
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Sleep time",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontFamily = bodyFontFamily,
+                fontWeight = FontWeight(400),
+                color = Color(0xFFEEF6F8),
+                textAlign = TextAlign.Center,
+            )
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        TimePickerCard(
+            initialHour = initialSchedule.sleepTime.hour,
+            initialMinute = initialSchedule.sleepTime.minute,
+            initialAmPm = initialSchedule.sleepTime.amPm,
+            isEnabled = isEnabled,
+            onTimeChanged = { hour, minute, amPm ->
+                Log.i("WakeUpTimeAndBedTime", "hour: $hour, minute: $minute, amPm: $amPm")
+                sleepTime = TimeEntity(hour, minute, amPm)
+                onTimeChanged(WakeSleepEntity(wakeTime, sleepTime))
+            }
+        )
+    }
+}
+
 data class TimeEntity(
     val hour: Int,
     val minute: Int,
@@ -41,15 +121,22 @@ data class TimeEntity(
 @Preview
 @Composable
 fun PreviewTimePicker(){
-    TimePickerCard(
-        initialHour = 12,
-        initialMinute = 30,
-        initialAmPm = "PM",
-        isEnabled = true,
-        onTimeChanged = { hour, minute, amPm ->
-            Log.i("TimePickerCard", "hour: $hour, minute: $minute, amPm: $amPm")
-        }
-    )
+    WakeUpTimeAndBedTime(
+        initialSchedule = WakeSleepEntity(TimeEntity(6, 15, "AM"),
+            TimeEntity(11, 15, "PM")),
+        isEnabled =true
+    ) {
+
+    }
+//    TimePickerCard(
+//        initialHour = 12,
+//        initialMinute = 30,
+//        initialAmPm = "PM",
+//        isEnabled = true,
+//        onTimeChanged = { hour, minute, amPm ->
+//            Log.i("TimePickerCard", "hour: $hour, minute: $minute, amPm: $amPm")
+//        }
+//    )
 }
 
 @Composable

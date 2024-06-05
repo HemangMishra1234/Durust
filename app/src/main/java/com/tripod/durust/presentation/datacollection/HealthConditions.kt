@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.tripod.durust.ui.theme.bodyFontFamily
 
 @Composable
-fun HealthConditionList(selectedCondition: HealthCondition? = null, onConditionSelected: (HealthCondition?) -> Unit = {}) {
-    var selectedConditionState by remember { mutableStateOf(selectedCondition) }
+fun HealthConditionList(selectedCondition: HealthCondition? = HealthCondition.NONE, onConditionSelected: (HealthCondition?) -> Unit = {}) {
+    var selectedConditionState by remember { mutableStateOf<HealthCondition?>(selectedCondition) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(9.dp, Alignment.Bottom),
@@ -34,7 +34,7 @@ fun HealthConditionList(selectedCondition: HealthCondition? = null, onConditionS
             )
             .border(width = 1.dp, color = Color.White, shape = RoundedCornerShape(size = 12.5.dp))
             .width(192.dp)
-            .height(368.36295.dp)
+            .height(410.36295.dp)
             .padding(8.28185.dp)
     ) {
         HealthCondition.entries.forEach { condition ->
@@ -112,5 +112,6 @@ enum class HealthCondition(val displayName: String) {
     DIABETIC_T1("Diabetic T1"),
     DIABETIC_T2("Diabetic T2"),
     PCOD_PCOS("PCOD/PCOS"),
-    OTHER("Other")
+    OTHER("Other"),
+    NONE("None"),
 }

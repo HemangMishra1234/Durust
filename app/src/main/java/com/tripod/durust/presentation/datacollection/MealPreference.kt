@@ -49,7 +49,8 @@ fun MealPreferenceSelectionUI(initialValue: MealPreferenceEntity, isEnabled: Boo
             val isSelected = type == selectedType.value
             Box(
                 modifier = Modifier
-                    .clickable {if(isEnabled) selectedType.value = type }
+                    .clickable {if(isEnabled){ selectedType.value = type
+                    onTypeSelected(type)}}
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFEEF6F8))
                     .animateContentSize()

@@ -1,6 +1,5 @@
 package com.tripod.durust.presentation.datacollection
 
-import android.text.InputType
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,19 +27,21 @@ import androidx.compose.ui.unit.sp
 import com.tripod.durust.ui.theme.bodyFontFamily
 
 @Composable
-fun StepsInputSelectionUI(initialValue: StepsInputEntity,isEnabled :Boolean, onTypeSelected: (InputType) -> Unit) {
+fun StepsInputSelectionUI(initialValue: StepsInputEntity,isEnabled :Boolean, onTypeSelected: (StepsInputEntity) -> Unit) {
     val selectedType = remember { mutableStateOf<StepsInputEntity>(initialValue) }
-
+    val entries = if(isEnabled) StepsInputEntity.entries else listOf(initialValue)
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .width(323.81445.dp)
+            .width(if(isEnabled)323.81445.dp else 170.dp)
             .height(70.dp)
     ) {
-        StepsInputEntity.entries.forEach { type ->
+        entries.forEach { type ->
         val isSelected = type == selectedType.value
-        Box(modifier = Modifier.clickable { selectedType.value = type }
+        Box(modifier =
+        Modifier.clickable { selectedType.value = type
+        onTypeSelected(type)}
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .animateContentSize()
@@ -87,5 +88,5 @@ fun StepsInputSelectionUIPreview() {
 enum class StepsInputEntity(val displayName: String) {
     LESS_THAN_FIVE_THOUSAND("<5,000"),
     FIVE_THOUSAND_TO_TEN_THOUSAND("5,000-10,000"),
-    LESS_THAN_TEN_THOUSAND("<10,000")
+    GREATER_THAN_TEN_THOUSAND(">10,000")
 }

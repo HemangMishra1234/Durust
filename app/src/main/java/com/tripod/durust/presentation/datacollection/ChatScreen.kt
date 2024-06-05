@@ -1,7 +1,7 @@
 package com.tripod.durust.presentation.datacollection
 
 import ChatRow
-import NameInputTextField
+import ChatInputTextField
 import NextImageButton
 import TopChatBar
 import android.util.Log
@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
@@ -32,12 +33,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tripod.durust.data.DateEntity
+import com.tripod.durust.presentation.MainActivity
 
 
-@Preview
 @Composable
-fun ChatScreen() {
-    val viewModel = ChatComponentViewModelFactory().create(ChatComponentViewModel::class.java)
+fun ChatScreen(viewModel: ChatComponentViewModel) {
+
     val chatComponents by viewModel.history
     var onNext = {}
     val context = LocalContext.current
@@ -77,7 +78,7 @@ fun ChatScreen() {
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp)
                 ) {
-                    Log.i("ChatScreen", "ChatComponents: $chatComponents")
+                    Log.i("ChatScreen", "ChatComponentsHistory: $chatComponents")
                     items(chatComponents.size) { index ->
                         AnimatedVisibility(visible = true) {
                             when (val chatComponent = chatComponents[index]) {
@@ -123,6 +124,54 @@ fun ChatScreen() {
                                     _,_->
                                 }
 
+                                is ChatComponent.PreferredExerciseInput -> ExercisePreferenceInputMain(
+                                    chatComponent = chatComponent,
+                                    viewModel = viewModel,
+                                    isActive = false
+                                ) {
+                                    _,_->
+                                }
+
+                                is ChatComponent.StepCountInput -> StepsInputMain(
+                                    chatComponent = chatComponent,
+                                    viewModel = viewModel,
+                                    isActive = false
+                                ) {
+                                    _,_->
+                                }
+
+                                is ChatComponent.MealPreference -> MealPreferenceInputMain(
+                                    chatComponent = chatComponent,
+                                    viewModel = viewModel,
+                                    isActive = false
+                                ) {
+                                    _,_->
+                                }
+
+                                is ChatComponent.SleepSchedule -> WakeSleepTimeInputMain(
+                                    chatComponent = chatComponent,
+                                    viewModel = viewModel,
+                                    isActive = false
+                                ) {
+                                    _,_->
+                                }
+
+                                is ChatComponent.CalorieIntake -> CalorieIntakeInputMain(
+                                    chatComponent = chatComponent,
+                                    viewModel = viewModel,
+                                    isActive = false
+                                ) {
+                                    _,_->
+                                }
+
+                                is ChatComponent.HealthIssues -> HealthConditionInputMain(
+                                    chatComponent = chatComponent,
+                                    viewModel = viewModel,
+                                    isActive = false
+                                ) {
+                                    _,_->
+                                }
+
                                 is ChatComponent.RoutineCheckUpFrequency -> CheckUpFrequencyInputMain(
                                     chatComponent = chatComponent,
                                     viewModel = viewModel,
@@ -139,6 +188,35 @@ fun ChatScreen() {
                     item {
                         AnimatedVisibility(visible = true) {
                             when (activeComponent) {
+
+                                ChatComponentType.Name ->
+                                    NameInputText(
+                                        chatComponent = ChatComponent.NameInputText(
+                                            id = "5",
+                                            response = ""
+                                        ),
+                                        viewModel = viewModel,
+                                        isActive = true
+                                    ) { isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
+                                ChatComponentType.Gender ->
+                                    GenderInputMain(
+                                        chatComponent = ChatComponent.GenderInputUI(
+                                            id = "5",
+                                            gender = GenderEntity.Female
+                                        ),
+                                        viewModel= viewModel,
+                                        isActive = true
+                                    ){
+                                        isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
+
                                 ChatComponentType.Weight ->
                                     WeightInputMain(
                                         chatComponent = ChatComponent.WeightInput(
@@ -185,6 +263,73 @@ fun ChatScreen() {
                                         isDone = isDone2
                                     }
 
+                                ChatComponentType.PreferredExercise->
+                                    ExercisePreferenceInputMain(
+                                        chatComponent = ChatComponent.PreferredExerciseInput(
+                                            id = "5",
+                                            exercise = ExerciseType.GYM
+                                        ), viewModel = viewModel, isActive = true
+                                    ) { isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
+                                ChatComponentType.StepCount ->
+                                    StepsInputMain(
+                                        chatComponent = ChatComponent.StepCountInput(
+                                            id = "5",
+                                            steps = StepsInputEntity.GREATER_THAN_TEN_THOUSAND
+                                        ), viewModel = viewModel, isActive = true
+                                    ) { isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
+                                ChatComponentType.MealPreference ->
+                                    MealPreferenceInputMain(
+                                        chatComponent = ChatComponent.MealPreference(
+                                            id = "5",
+                                            preference = MealPreferenceEntity.VEGETARIAN
+                                        ), viewModel = viewModel, isActive = true
+                                    ) { isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
+                                ChatComponentType.SleepSchedule ->
+                                    WakeSleepTimeInputMain(
+                                        chatComponent = ChatComponent.SleepSchedule(
+                                            id = "5",
+                                            schedule = WakeSleepEntity(TimeEntity(6, 15, "AM"),
+                                                TimeEntity(11, 15, "PM"))
+                                        ), viewModel = viewModel, isActive = true
+                                    ) { isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
+                                ChatComponentType.CalorieIntake->
+                                    CalorieIntakeInputMain(
+                                        chatComponent = ChatComponent.CalorieIntake(
+                                            id = "5",
+                                            calories = 2000
+                                        ), viewModel = viewModel, isActive = true
+                                    ) { isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
+                                ChatComponentType.HealthIssues->
+                                    HealthConditionInputMain(
+                                        chatComponent = ChatComponent.HealthIssues(
+                                            id = "5",
+                                            issues = HealthCondition.NONE
+                                        ), viewModel = viewModel, isActive = true
+                                    ) { isDone2, it ->
+                                        onNext = it
+                                        isDone = isDone2
+                                    }
+
                                 ChatComponentType.RoutineCheckUpFrequency->
                                     CheckUpFrequencyInputMain(
                                         chatComponent = ChatComponent.RoutineCheckUpFrequency(
@@ -208,8 +353,7 @@ fun ChatScreen() {
             ) {
                 if (isDone) {
                     onNext()
-//                    needScroll.value = true
-                    viewModel.nextComponent()
+//                    viewModel.nextComponent()
                     isDone = false
                 } else
                     Toast.makeText(context, "Select one option please", Toast.LENGTH_SHORT).show()
@@ -255,6 +399,273 @@ fun CheckUpFrequencyInputMain(
                 ChatComponent.RoutineCheckUpFrequency(
                     id = getTime().toString(),
                     frequency = frequency
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+fun HealthConditionInputMain(
+    chatComponent: ChatComponent.HealthIssues,
+    viewModel: ChatComponentViewModel,
+    isActive: Boolean,
+    onNext: (Boolean, () -> Unit) -> Unit
+) {
+    val context = LocalContext.current
+    var healthCondition by remember {
+        mutableStateOf(chatComponent.issues)
+    }
+    var isAnswered by remember {
+        mutableStateOf(false)
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ChatRow(chatText = chatComponent.message)
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.align(Alignment.End)) {
+            HealthConditionList(
+                selectedCondition = if (!isActive) chatComponent.issues else null,
+                onConditionSelected = { selectedCondition ->
+                    if (isActive) {
+                        healthCondition = selectedCondition ?: HealthCondition.NONE
+                        isAnswered = true
+                    }
+                }
+            )
+        }
+    }
+    onNext(isActive && isAnswered) {
+        if (isActive) {
+            viewModel.data = viewModel.data.copy(healthIssues = healthCondition)
+            Toast.makeText(context, "Health condition is $healthCondition", Toast.LENGTH_SHORT).show()
+            viewModel.addHistory(
+                ChatComponent.HealthIssues(
+                    id = getTime().toString(),
+                    issues = healthCondition
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+fun CalorieIntakeInputMain(
+    chatComponent: ChatComponent.CalorieIntake,
+    viewModel: ChatComponentViewModel,
+    isActive: Boolean,
+    onNext: (Boolean, () -> Unit) -> Unit
+) {
+    val context = LocalContext.current
+    var calorieIntake by remember {
+        mutableStateOf(chatComponent.calories.toString())
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ChatRow(chatText = chatComponent.message)
+        Box(modifier = Modifier.align(Alignment.End)) {
+            ChatInputTextField(
+                value = if (!isActive) chatComponent.calories.toString() else "",
+                isActive = isActive,
+                placeholder = "Enter calories intake here"
+            ) {
+                calorieIntake = it
+            }
+        }
+    }
+    onNext(isActive && calorieIntake.isNotEmpty() && calorieIntake.toIntOrNull() != null) {
+        if (isActive) {
+            viewModel.data = viewModel.data.copy(calorieIntake = calorieIntake.toInt())
+            Toast.makeText(context, "Calorie intake is $calorieIntake", Toast.LENGTH_SHORT).show()
+            viewModel.addHistory(
+                ChatComponent.CalorieIntake(
+                    id = getTime().toString(),
+                    calories = calorieIntake.toInt()
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+fun WakeSleepTimeInputMain(
+    chatComponent: ChatComponent.SleepSchedule,
+    viewModel: ChatComponentViewModel,
+    isActive: Boolean,
+    onNext: (Boolean, () -> Unit) -> Unit
+) {
+    val context = LocalContext.current
+    var wakeSleepEntity by remember {
+        mutableStateOf(chatComponent.schedule)
+    }
+    var isAnswered by remember {
+        mutableStateOf(false)
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ChatRow(chatText = chatComponent.message)
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.align(Alignment.End)) {
+            WakeUpTimeAndBedTime(
+                initialSchedule = if (!isActive) chatComponent.schedule else WakeSleepEntity(
+                    TimeEntity(6, 0, "AM"),
+                    TimeEntity(10, 0, "PM")
+                ),
+                isEnabled = isActive
+            ) { selectedWakeSleepEntity ->
+                if (isActive) {
+                    wakeSleepEntity = selectedWakeSleepEntity
+                    isAnswered = true
+                }
+            }
+        }
+    }
+    onNext(isActive && isAnswered) {
+        if (isActive) {
+            viewModel.data = viewModel.data.copy(
+                wakeUpTime = wakeSleepEntity.wakeTime,
+                sleepTime = wakeSleepEntity.sleepTime
+            )
+            Toast.makeText(context, "Sleep schedule is ${wakeSleepEntityToString(wakeSleepEntity)}", Toast.LENGTH_SHORT).show()
+            viewModel.addHistory(
+                ChatComponent.SleepSchedule(
+                    id = getTime().toString(),
+                    schedule = wakeSleepEntity
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+fun MealPreferenceInputMain(
+    chatComponent: ChatComponent.MealPreference,
+    viewModel: ChatComponentViewModel,
+    isActive: Boolean,
+    onNext: (Boolean, () -> Unit) -> Unit
+) {
+    val context = LocalContext.current
+    var mealPreferenceEntity by remember {
+        mutableStateOf(chatComponent.preference)
+    }
+    var isAnswered by remember {
+        mutableStateOf(false)
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ChatRow(chatText = chatComponent.message)
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.align(Alignment.End)) {
+            MealPreferenceSelectionUI(
+                initialValue = if (!isActive) chatComponent.preference else MealPreferenceEntity.VEGETARIAN,
+                isEnabled = isActive
+            ) { selectedMealPreference ->
+                if (isActive) {
+                    mealPreferenceEntity = selectedMealPreference
+                    isAnswered = true
+                }
+            }
+        }
+    }
+    onNext(isActive && isAnswered) {
+        if (isActive) {
+            viewModel.data = viewModel.data.copy(mealPreferenceEntity = mealPreferenceEntity)
+            Toast.makeText(context, "Meal preference is $mealPreferenceEntity", Toast.LENGTH_SHORT).show()
+            viewModel.addHistory(
+                ChatComponent.MealPreference(
+                    id = getTime().toString(),
+                    preference = mealPreferenceEntity
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+fun StepsInputMain(
+    chatComponent: ChatComponent.StepCountInput,
+    viewModel: ChatComponentViewModel,
+    isActive: Boolean,
+    onNext: (Boolean, () -> Unit) -> Unit
+) {
+    val context = LocalContext.current
+    var stepsInputEntity by remember {
+        mutableStateOf(chatComponent.steps)
+    }
+    var isAnswered by remember {
+        mutableStateOf(false)
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ChatRow(chatText = chatComponent.message)
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.align(Alignment.End)) {
+            StepsInputSelectionUI(
+                initialValue = if (!isActive) chatComponent.steps else StepsInputEntity.LESS_THAN_FIVE_THOUSAND,
+                isEnabled = isActive
+            ) { selectedSteps ->
+                if (isActive) {
+                    stepsInputEntity = selectedSteps
+                    isAnswered = true
+                }
+            }
+        }
+    }
+    onNext(isActive && isAnswered) {
+        if (isActive) {
+            viewModel.data = viewModel.data.copy(stepsInput = stepsInputEntity)
+            Toast.makeText(context, "Step count preference is $stepsInputEntity", Toast.LENGTH_SHORT).show()
+            viewModel.addHistory(
+                ChatComponent.StepCountInput(
+                    id = getTime().toString(),
+                    steps = stepsInputEntity
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+fun ExercisePreferenceInputMain(
+    chatComponent: ChatComponent.PreferredExerciseInput,
+    viewModel: ChatComponentViewModel,
+    isActive: Boolean,
+    onNext: (Boolean, () -> Unit) -> Unit
+) {
+    val context = LocalContext.current
+    var exerciseType by remember {
+        mutableStateOf(chatComponent.exercise)
+    }
+    var isAnswered by remember {
+        mutableStateOf(false)
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ChatRow(chatText = chatComponent.message)
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.align(Alignment.End)) {
+            ExercisePreferenceUI(
+                inactiveValue = if (!isActive) chatComponent.exercise else ExerciseType.WALKING,
+                isActive = isActive,
+                modifier = Modifier
+                    .width(280.dp)
+                    .height(250.dp)
+            ) { selectedExercise ->
+                if (isActive) {
+                    exerciseType = selectedExercise
+                    isAnswered = true
+                }
+            }
+        }
+    }
+    onNext(isActive && isAnswered) {
+        if (isActive) {
+            viewModel.data = viewModel.data.copy(exercisePreference = exerciseType)
+            Toast.makeText(context, "Exercise preference is $exerciseType", Toast.LENGTH_SHORT).show()
+            viewModel.addHistory(
+                ChatComponent.PreferredExerciseInput(
+                    id = getTime().toString(),
+                    exercise = exerciseType
                 )
             )
         }
@@ -485,8 +896,8 @@ fun NameInputText(
     Column(modifier = Modifier.fillMaxWidth()) {
         ChatRow(chatText = chatComponent.message)
         Box(modifier = Modifier.align(Alignment.End)) {
-            NameInputTextField(
-                name = if (!isActive) chatComponent.response else "",
+            ChatInputTextField(
+                value = if (!isActive) chatComponent.response else "",
                 isActive = isActive
             ) {
                 name = it

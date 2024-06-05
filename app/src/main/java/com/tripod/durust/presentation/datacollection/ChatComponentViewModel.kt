@@ -1,15 +1,13 @@
 package com.tripod.durust.presentation.datacollection
 
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.tripod.durust.data.PrimaryUserData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.tripod.durust.presentation.MainActivity
 
 class ChatComponentViewModel: ViewModel() {
 
@@ -20,16 +18,16 @@ class ChatComponentViewModel: ViewModel() {
         ChatComponentType.Birthday,
         ChatComponentType.Height,
         ChatComponentType.ExerciseFrequency,
-        ChatComponentType.PreferedExercise,
+        ChatComponentType.PreferredExercise,
         ChatComponentType.StepCount,
         ChatComponentType.MealPreference,
+        ChatComponentType.SleepSchedule,
         ChatComponentType.CalorieIntake,
-        ChatComponentType.SleepSchedule,
-        ChatComponentType.SleepSchedule,
+        ChatComponentType.HealthIssues,
         ChatComponentType.RoutineCheckUpFrequency
     )
 
-    private var activeComponentIndex = mutableIntStateOf(5)
+    private var activeComponentIndex = mutableIntStateOf(0)
     var activeComponent = mutableStateOf(orderOfComponents[activeComponentIndex.intValue])
     private set
 
@@ -39,19 +37,13 @@ class ChatComponentViewModel: ViewModel() {
 
     fun addHistory(comp:ChatComponent){
         history.value += listOf(comp)
-    }
-
-
-    val sampleChatList: List<ChatComponent> = listOf(
-        ChatComponentEntity("1", ChatComponentType.Name, "Hemang"),
-        ChatComponentEntity("2", ChatComponentType.Gender, "Male")).map {
-            it.toChatComponent()
+        nextComponent()
     }
 
     fun nextComponent(){
         if(activeComponentIndex.intValue < orderOfComponents.size - 1){
-//            activeComponentIndex.intValue += 1
-//            activeComponent.value = orderOfComponents[activeComponentIndex.intValue]
+            activeComponentIndex.intValue += 1
+            activeComponent.value = orderOfComponents[activeComponentIndex.intValue]
         }
     }
 
@@ -60,6 +52,10 @@ class ChatComponentViewModel: ViewModel() {
             activeComponentIndex.intValue -= 1
             activeComponent.value = orderOfComponents[activeComponentIndex.intValue]
         }
+    }
+
+    fun savePersonalData(){
+
     }
 }
 
