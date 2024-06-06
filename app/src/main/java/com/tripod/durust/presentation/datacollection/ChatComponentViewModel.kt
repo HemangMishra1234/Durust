@@ -5,13 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.tripod.durust.data.PrimaryUserData
 import com.tripod.durust.domain.repositories.PrimaryUserDataRepo
 import com.tripod.durust.presentation.MainActivity
+import com.tripod.durust.presentation.chats.NavBotScreen
 import kotlinx.coroutines.launch
 import java.util.EnumSet.range
 
 class ChatComponentViewModel(val userDataRepo: PrimaryUserDataRepo): ViewModel() {
+    var navController: NavController? = null
 
     private val orderOfComponents = listOf(
         ChatComponentType.Name,
@@ -52,10 +55,9 @@ class ChatComponentViewModel(val userDataRepo: PrimaryUserDataRepo): ViewModel()
                 in range(ChatComponentType.CalorieIntake, ChatComponentType.RoutineCheckUpFrequency) -> topComponentStep.value = 3
                 else-> topComponentStep.value = 3
             }
-            savePersonalData()
         }else{
             savePersonalData()
-            
+            navController?.navigate(NavBotScreen)
         }
     }
 

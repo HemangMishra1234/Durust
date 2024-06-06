@@ -32,9 +32,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.tripod.durust.presentation.DEMedicineAddOneMoreMainUI
+import com.tripod.durust.presentation.DEMedicineFrequencyIsDailyMainUI
+import com.tripod.durust.presentation.DEMedicineNotificationMainUI
+import com.tripod.durust.presentation.DEMedicineNotificationTimeMainUI
+import com.tripod.durust.presentation.DEMedicineSearchMainUI
+import com.tripod.durust.presentation.DEMedicineTimeMainUI
+import com.tripod.durust.presentation.DEMedicineWeekdaysMainUI
 import com.tripod.durust.presentation.chats.data.BotComponent
 import com.tripod.durust.presentation.chats.data.BotUiState
+import kotlinx.serialization.Serializable
 
+@Serializable
+object NavBotScreen
 
 @Composable
 fun BotScreen(
@@ -89,16 +99,123 @@ fun BotScreen(
                             }
 
                             is BotComponent.GeminiState -> {
-                                ChatRow(chatText = item.prompt)
+                                ChatRow(chatText = item.prompt, isAI = true)
                             }
 
                             is BotComponent.GeminiResponseState ->{
-                                ChatRow(chatText = item.response)
+                                ChatRow(chatText = item.response, isAI = true)
                             }
 
                             is BotComponent.MenuState -> {
                                 MenuMainUI(botComponent = item, viewModel = geminiViewModel, isActive = false)
                             }
+
+                            is BotComponent.DECarouselState ->{
+                                DataEntryMainUI(botComponent = item, viewModel = geminiViewModel, isActive = false)
+                            }
+
+                            is BotComponent.DEExerciseTypeCarouselState ->{
+                                DEExerciseTypeMainUI(botComponent = item, viewModel = geminiViewModel, isActive = false)
+                            }
+
+                            is BotComponent.DEExerciseDurationState ->{
+                                DEExerciseTimeDurationMainUI(botComponent = item, viewModel = geminiViewModel, isActive = false)
+                            }
+
+                            is BotComponent.DEExerciseAddOneMoreState ->{
+                                DEExerciseAddOneMoreMainUI(botComponent = item, viewModel = geminiViewModel, isActive = false)
+                            }
+
+                            is BotComponent.DESleepDurationState ->{
+                                DESleepMainUI(botComponent = item, viewModel = geminiViewModel, isActive = false)
+                            }
+
+                            is BotComponent.DEMedicineSearchState->
+                                DEMedicineSearchMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive =false
+                                )
+
+                            is BotComponent.DEMedicineTimeState->
+                                DEMedicineTimeMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEMedicineFrequencyIsDaily->
+                                DEMedicineFrequencyIsDailyMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEMedicineWeekdaysState->
+                                DEMedicineWeekdaysMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEMedicineNotificationState->
+                                DEMedicineNotificationMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEMedicineNotificationTimeState->
+                                DEMedicineNotificationTimeMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEMedicineAddOneMoreState->
+                                DEMedicineAddOneMoreMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEStatsCarouselState->
+                                DEStatsCarouselMainUI(botComponent = item, viewModel = geminiViewModel, isActive = false)
+
+                            is BotComponent.DEStatsWeightEntryState->
+                                DEStatsWeightEntryMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEStatsBloodPressureSystolicEntryState->
+                                DEBloodPressureSystolicMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEStatsBloodPressureDiastolicEntryState->
+                                DEBloodPressureDiastolicMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEStatsGlucoseTestTypeState->
+                                DEGlucoseTestTypeMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEStatsGlucoseEntryState->
+                                DEGlucoseLevelMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
                             else -> {}
                         }
                     }
@@ -111,6 +228,113 @@ fun BotScreen(
                             BotUiState.MENU ->{
                                 MenuMainUI(botComponent = null, viewModel = geminiViewModel, isActive = true)
                             }
+
+                            BotUiState.DE_CAROUSEL_STATE ->{
+                                DataEntryMainUI(botComponent = null, viewModel = geminiViewModel, isActive = true)
+                            }
+
+                            BotUiState.DE_EXERCISE_TYPE_CAROUSEL_STATE ->{
+                                DEExerciseTypeMainUI(botComponent = null, viewModel = geminiViewModel, isActive = true)
+                            }
+
+                            BotUiState.DE_EXERCISE_DURATION_STATE ->{
+                                DEExerciseTimeDurationMainUI(botComponent = null, viewModel = geminiViewModel, isActive = true)
+                            }
+
+                            BotUiState.DE_EXERCISE_ADD_ONE_MORE_STATE ->{
+                                DEExerciseAddOneMoreMainUI(botComponent = null, viewModel = geminiViewModel, isActive = true)
+                            }
+
+                            BotUiState.DE_SLEEP_DURATION_STATE ->{
+                                DESleepMainUI(botComponent = null, viewModel = geminiViewModel, isActive = true)
+                            }
+
+                            BotUiState.DE_MEDICINE_SEARCH_STATE->
+                                DEMedicineSearchMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_MEDICINE_TIME ->
+                                DEMedicineTimeMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_MEDICINE_FREQUENCY_IS_DAILY->
+                                DEMedicineFrequencyIsDailyMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_MEDICINE_WEEKDAYS_STATE->
+                                DEMedicineWeekdaysMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_MEDICINE_NOTIFICATION_STATE->
+                                DEMedicineNotificationMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_MEDICINE_NOTIFICATION_TIME_STATE->
+                                DEMedicineNotificationTimeMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_MEDICINE_ADD_ONE_MORE_STATE->
+                                DEMedicineAddOneMoreMainUI(
+                                    botComponent =null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_STATS_CAROUSEL_STATE->
+                                DEStatsCarouselMainUI(botComponent = null, viewModel = geminiViewModel, isActive = true )
+                            
+                            BotUiState.DE_STATS_WEIGHT_ENTRY_STATE->
+                                DEStatsWeightEntryMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_STATS_BLOOD_PRESSURE_SYSTOLIC_ENTRY_STATE->
+                                DEBloodPressureSystolicMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_STATS_BLOOD_PRESSURE_DIASTOLIC_ENTRY_STATE->
+                                DEBloodPressureDiastolicMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_STATS_GLUCOSE_TEST_TYPE_STATE->
+                                DEGlucoseTestTypeMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_STATS_GLUCOSE_ENTRY_STATE->
+                                DEGlucoseLevelMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
                             else -> {}
                         }
                     }

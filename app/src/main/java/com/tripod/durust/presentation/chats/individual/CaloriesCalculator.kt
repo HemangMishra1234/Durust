@@ -1,10 +1,11 @@
 package com.tripod.durust.presentation.chats.individual
 
 import com.tripod.durust.presentation.datacollection.ExerciseType
+import com.tripod.durust.presentation.datacollection.TimeEntity
 import kotlin.math.roundToInt
 
-fun calculateCaloriesBurnt(exerciseType: ExerciseType, duration: TimeDuration, height: String, weight: Int): Int {
-    val totalMinutes = duration.hours * 60 + duration.minutes
+fun calculateCaloriesBurnt(exerciseType: ExerciseType, duration: TimeEntity, height: String, weight: Int): Int {
+    val totalMinutes = duration.hour * 60 + duration.minute
     val metValue = exerciseType.metValue
     val heightInInches = heightToInches(height)
     val weightInKg = weight

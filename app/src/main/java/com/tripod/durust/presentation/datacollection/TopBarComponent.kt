@@ -50,6 +50,7 @@ import kotlinx.coroutines.delay
 fun ChatInputTextField(
     value: String,
     isActive: Boolean,
+    modifier: Modifier = Modifier,
     placeholder: String = "Enter name here",
     onValueChange: (String) -> Unit
 ) {
@@ -58,7 +59,7 @@ fun ChatInputTextField(
         mutableStateOf(value)
     }
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 16.dp))
             .background(Color.White)
     ) {
@@ -189,7 +190,7 @@ private fun StepItem(number: Int, isSelected: Boolean) {
 }
 
 @Composable
-fun ChatRow(imageResId: Int = R.drawable.assistanticon, chatText: String, isHtml: Boolean = false) {
+fun ChatRow(imageResId: Int = R.drawable.assistanticon, chatText: String, isAI: Boolean = false,isHtml: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -207,7 +208,7 @@ fun ChatRow(imageResId: Int = R.drawable.assistanticon, chatText: String, isHtml
         Spacer(modifier = Modifier.width(8.dp))
         Card(
             shape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 16.dp),
-            modifier = Modifier.fillMaxWidth(0.85f),
+            modifier = Modifier.fillMaxWidth(0.95f),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0x99AED5FF)
             )
@@ -216,7 +217,7 @@ fun ChatRow(imageResId: Int = R.drawable.assistanticon, chatText: String, isHtml
             Text(
                 text = chatText,
                 modifier = Modifier.padding(16.dp),
-                fontSize = 16.sp,
+                fontSize = if(!isAI) 16.sp else 13.sp,
                 color = MaterialTheme.colorScheme.onPrimary)
             }
             else

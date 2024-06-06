@@ -67,8 +67,8 @@ sealed class OnBoardingChatComponent {
         val id: String,
         val message: String = "What’s your sleep schedule?",
         val schedule: WakeSleepEntity = WakeSleepEntity(
-            TimeEntity(6, 15, "AM"),
-            TimeEntity(11, 15, "PM")
+            TimeEntity(6, 15),
+            TimeEntity(11, 15)
         )
     ) : OnBoardingChatComponent()
 

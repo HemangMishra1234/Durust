@@ -1,6 +1,6 @@
 package com.tripod.durust.presentation.chats
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -15,14 +15,16 @@ import com.tripod.durust.presentation.chats.data.BotComponent
 import com.tripod.durust.presentation.chats.data.BotUiState
 import com.tripod.durust.presentation.chats.data.GeminiData
 import com.tripod.durust.presentation.chats.individual.DataEntryCarouselEntity
+import com.tripod.durust.presentation.chats.individual.GlucoseTestType
 import com.tripod.durust.presentation.chats.individual.MedicineFrequency
+import com.tripod.durust.presentation.chats.individual.MedicineTime
 import com.tripod.durust.presentation.chats.individual.MenuOptions
 import com.tripod.durust.presentation.chats.individual.StatsEntity
-import com.tripod.durust.presentation.chats.individual.TimeDuration
 import com.tripod.durust.presentation.chats.individual.calculateCaloriesBurnt
 import com.tripod.durust.presentation.datacollection.ExerciseType
 import com.tripod.durust.presentation.datacollection.TimeEntity
 import com.tripod.durust.presentation.datacollection.WakeSleepEntity
+import com.tripod.durust.presentation.datacollection.formatTime
 import com.tripod.durust.presentation.datacollection.getTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,11 +53,12 @@ class GeminiViewModel : ViewModel() {
 
     fun addHistory(comp: BotComponent) {
         history.value += listOf(comp)
+        needScroll.value = true
     }
 
 
     fun onClick(snackbarHostState: SnackbarHostState, prompt: String) {
-        if(prompt.isEmpty()) {
+        if (prompt.isEmpty()) {
             if (chatUiState.value == BotUiState.MENU) {
                 showSnackBar(snackbarHostState, "Please select an option from the menu")
                 return
@@ -129,6 +132,15 @@ class GeminiViewModel : ViewModel() {
                     return
                 }
 
+                BotUiState.DE_MEDICINE_TIME ->{
+                    if(data.value.medicineTime == null){
+                        showSnackBar(snackbarHostState, "Please select your medicine time")
+                        return
+                    }
+                    onDEMedicineTimeSelected(data.value.medicineTime!!)
+                    return
+                }
+
                 BotUiState.DE_MEDICINE_FREQUENCY_IS_DAILY -> {
                     // Similar steps for DE_MEDICINE_FREQUENCY_IS_DAILY
                     // Replace `isMedicineDaily` with the actual field you need to check
@@ -142,40 +154,54 @@ class GeminiViewModel : ViewModel() {
                     onDEMedicineFrequencyIsDailySelected(data.value.isMedicineDaily!!)
                     return
                 }
+
                 BotUiState.DE_MEDICINE_WEEKDAYS_STATE -> {
                     //Step 2: Check if data is null, it means user has not reacted to the ui changes
                     if (data.value.medicineFrequency == null) {
-                        showSnackBar(snackbarHostState, "Please select the weekdays for the medicine")
+                        showSnackBar(
+                            snackbarHostState,
+                            "Please select the weekdays for the medicine"
+                        )
                         return
                     }
                     //Step 3: if user has reacted to ui changes update the state
                     onDEMedicineWeekdaysStateSelected(data.value.medicineFrequency!!)
                     return
                 }
+
                 BotUiState.DE_MEDICINE_NOTIFICATION_STATE -> {
                     if (data.value.shouldNotifyForMedicine == null) {
-                        showSnackBar(snackbarHostState, "Please select whether to notify for the medicine")
+                        showSnackBar(
+                            snackbarHostState,
+                            "Please select whether to notify for the medicine"
+                        )
                         return
                     }
                     onDEMedicineNotificationStateSelected(data.value.shouldNotifyForMedicine!!)
                     return
                 }
-                BotUiState.DE_MEDICINE_TIME_STATE -> {
-                    if (data.value.medicineTime == null) {
+
+                BotUiState.DE_MEDICINE_NOTIFICATION_TIME_STATE -> {
+                    if (data.value.medicineNotifcationTime == null) {
                         showSnackBar(snackbarHostState, "Please enter the time for the medicine")
                         return
                     }
-                    onDEMedicineTimeStateSelected(data.value.medicineTime!!)
+                    onDEMedicineNotificationTimeStateSelected(data.value.medicineNotifcationTime!!)
                     return
                 }
+
                 BotUiState.DE_MEDICINE_ADD_ONE_MORE_STATE -> {
                     if (data.value.shouldAddMedicine == null) {
-                        showSnackBar(snackbarHostState, "Please select whether to add one more medicine")
+                        showSnackBar(
+                            snackbarHostState,
+                            "Please select whether to add one more medicine"
+                        )
                         return
                     }
                     onDEMedicineAddOneMoreStateSelected(data.value.shouldAddMedicine!!)
                     return
                 }
+
                 BotUiState.DE_STATS_CAROUSEL_STATE -> {
                     if (data.value.selectedStatsEntity == null) {
                         showSnackBar(snackbarHostState, "Please select an option from the list")
@@ -184,6 +210,7 @@ class GeminiViewModel : ViewModel() {
                     onDEStatsCarouselStateSelected(data.value.selectedStatsEntity!!)
                     return
                 }
+
                 BotUiState.DE_STATS_WEIGHT_ENTRY_STATE -> {
                     if (data.value.weight == null) {
                         showSnackBar(snackbarHostState, "Please enter a weight")
@@ -192,6 +219,7 @@ class GeminiViewModel : ViewModel() {
                     onDEStatsWeightEntryStateSelected(data.value.weight!!)
                     return
                 }
+
                 BotUiState.DE_STATS_BLOOD_PRESSURE_SYSTOLIC_ENTRY_STATE -> {
                     if (data.value.systolicPressure == null) {
                         showSnackBar(snackbarHostState, "Please enter a systolic pressure")
@@ -200,6 +228,7 @@ class GeminiViewModel : ViewModel() {
                     onDEStatsBloodPressureSystolicEntryStateSelected(data.value.systolicPressure!!)
                     return
                 }
+
                 BotUiState.DE_STATS_BLOOD_PRESSURE_DIASTOLIC_ENTRY_STATE -> {
                     if (data.value.diastolicPressure == null) {
                         showSnackBar(snackbarHostState, "Please enter a diastolic pressure")
@@ -208,6 +237,16 @@ class GeminiViewModel : ViewModel() {
                     onDEStatsBloodPressureDiastolicEntryStateSelected(data.value.diastolicPressure!!)
                     return
                 }
+
+                BotUiState.DE_STATS_GLUCOSE_TEST_TYPE_STATE -> {
+                    if (data.value.glucoseTestType == null) {
+                        showSnackBar(snackbarHostState, "Please select a glucose test type")
+                        return
+                    }
+                    onGlucoseTestTypeSelected(data.value.glucoseTestType!!)
+                    return
+                }
+
                 BotUiState.DE_STATS_GLUCOSE_ENTRY_STATE -> {
                     if (data.value.glucoseLevel == null) {
                         showSnackBar(snackbarHostState, "Please enter a glucose level")
@@ -216,26 +255,28 @@ class GeminiViewModel : ViewModel() {
                     onDEStatsGlucoseEntryStateSelected(data.value.glucoseLevel!!)
                     return
                 }
+
                 else -> {
 
                 }
             }
-        }
-        else
-        sendPrompt(prompt)
+        } else
+            sendPrompt(prompt)
     }
 
     fun caloriesBurntDataEntry() {}
-    fun saveMedicineData(){
+    fun saveMedicineData() {
         //work with a copy of data it can be null at the next instant
         //Saving state without notification
     }
-    fun saveBP(){}
+
+    fun saveBP() {}
 
 
     fun sendPrompt(
         prompt: String
     ) {
+        data.value = GeminiData()
         _uiState.value = GeminiUiState.Loading
         addHistory(BotComponent.UserResponseState("1", prompt))
         chatUiState.value = BotUiState.GEMINI
@@ -243,12 +284,19 @@ class GeminiViewModel : ViewModel() {
             try {
                 val response = generativeModel.generateContent(
                     content {
-                        text(currentPrompt.prompt)
                         text(prompt)
                     }
                 )
+                _uiState.value = GeminiUiState.Loading
                 response.text?.let { outputContent ->
-                    _uiState.value = GeminiUiState.Success(outputContent)
+                    addHistory(
+                        BotComponent.GeminiResponseState(
+                            getTime().toString(),
+                            outputContent.replace("*", "")
+                        )
+                    )
+                    _uiState.value = GeminiUiState.Success("")
+                    chatUiState.value = BotUiState.MENU
                 }
             } catch (e: Exception) {
                 _uiState.value = GeminiUiState.Error(e.localizedMessage ?: "")
@@ -266,12 +314,14 @@ class GeminiViewModel : ViewModel() {
         data.value = data.value.copy(selectedExerciseType = null)
         data.value = data.value.copy(exerciseDuration = null)
     }
-    fun makeMedicineDataNull(){
+
+    fun makeMedicineDataNull() {
         data.value = data.value.copy(medicineName = null)
+        data.value = data.value.copy(medicineTime = null)
         data.value = data.value.copy(isMedicineDaily = null)
         data.value = data.value.copy(medicineFrequency = null)
         data.value = data.value.copy(shouldNotifyForMedicine = null)
-        data.value = data.value.copy(medicineTime = null)
+        data.value = data.value.copy(medicineNotifcationTime = null)
     }
 
 
@@ -345,7 +395,7 @@ class GeminiViewModel : ViewModel() {
 
     }
 
-    private fun onDEExerciseDurationStateSelected(duration: TimeDuration) {
+    private fun onDEExerciseDurationStateSelected(duration: TimeEntity) {
         // Step 1: Add the selected duration to the history
         addHistory(BotComponent.DEExerciseDurationState(getTime().toString(), duration))
 
@@ -353,7 +403,7 @@ class GeminiViewModel : ViewModel() {
         addHistory(
             BotComponent.UserResponseState(
                 id = getTime().toString(),
-                response = duration.toString()
+                response = "${duration.hour} hours and ${duration.minute} minutes"
             )
         )
 
@@ -364,7 +414,7 @@ class GeminiViewModel : ViewModel() {
         chatUiState.value = BotUiState.DE_EXERCISE_ADD_ONE_MORE_STATE
     }
 
-    private fun onDEExerciseAddOneMoreStateSelected(shouldAdd: Boolean) {
+    fun onDEExerciseAddOneMoreStateSelected(shouldAdd: Boolean) {
         // Step 1: Add the selected option to the history
         addHistory(BotComponent.DEExerciseAddOneMoreState(getTime().toString(), shouldAdd))
 
@@ -372,7 +422,7 @@ class GeminiViewModel : ViewModel() {
         addHistory(
             BotComponent.UserResponseState(
                 id = getTime().toString(),
-                response = shouldAdd.toString()
+                response = if(shouldAdd)"Add" else "Skip"
             )
         )
         if (data.value.selectedExerciseType != null && data.value.exerciseDuration != null && MainActivity.primaryUserData.value != null) {
@@ -389,6 +439,10 @@ class GeminiViewModel : ViewModel() {
                 )
             )
         } else {
+            Log.e(
+                "GeminiViewModel",
+                "Some error occurred showing calories burnt ${data.value} ${MainActivity.primaryUserData.value}"
+            )
             addHistory(
                 BotComponent.GeminiResponseState(
                     getTime().toString(),
@@ -408,23 +462,31 @@ class GeminiViewModel : ViewModel() {
                 chatUiState.value = BotUiState.MENU
             }
         }
-        // Assuming the next state is DE_SLEEP_DURATION_STATE
-        chatUiState.value = BotUiState.DE_SLEEP_DURATION_STATE
-
         // Step 4: Update the data
         data.value = data.value.copy(shouldAddExercise = null)
     }
 
-    private fun onDESleepDurationStateSelected(duration: WakeSleepEntity){
+    private fun onDESleepDurationStateSelected(duration: WakeSleepEntity) {
         // Step 1: Add the selected duration to the history
         addHistory(BotComponent.DESleepDurationState(getTime().toString(), duration))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = duration.toString()))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = "WakeUp Time: ${duration.wakeTime.hour} hours and ${duration.wakeTime.minute} minutes\n"+
+                "Sleep Time:${duration.sleepTime.hour} hours and ${duration.sleepTime.minute} minutes"
+            )
+        )
 
         // Step 3: Implement the logic to handle the selected duration
         //TODO Save the data here
-        addHistory(BotComponent.GeminiResponseState(getTime().toString(), analyzeSleepQuality(duration)))
+        addHistory(
+            BotComponent.GeminiResponseState(
+                getTime().toString(),
+                analyzeSleepQuality(duration)
+            )
+        )
         // For example, you might want to move to the next UI state after the sleep duration is selected.
         // This is just a placeholder. Replace it with your actual logic.
         chatUiState.value = BotUiState.MENU
@@ -438,21 +500,42 @@ class GeminiViewModel : ViewModel() {
         addHistory(BotComponent.DEMedicineSearchState(getTime().toString(), medicine))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = medicine))
+//        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = medicine))
 
         // Step 3: Implement the logic to handle the selected medicine
         // Here, you might want to update the UI state based on the selected medicine.
         // For example, you might want to move to the next UI state after the medicine is selected.
         // This is just a placeholder. Replace it with your actual logic.
-        chatUiState.value = BotUiState.DE_MEDICINE_FREQUENCY_IS_DAILY
+        chatUiState.value = BotUiState.DE_MEDICINE_TIME
     }
 
-    private fun onDEMedicineFrequencyIsDailySelected(isDaily: Boolean) {
+    private fun onDEMedicineTimeSelected(time: MedicineTime){
+        // Step 1: Add the selected time to the history
+        addHistory(BotComponent.DEMedicineTimeState(getTime().toString(), time))
+
+        // Step 2: Add response to the history
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = time.displayName
+            )
+        )
+
+        chatUiState.value = BotUiState.DE_MEDICINE_FREQUENCY_IS_DAILY
+
+    }
+
+    fun onDEMedicineFrequencyIsDailySelected(isDaily: Boolean) {
         // Step 1: Add the selected option to the history
         addHistory(BotComponent.DEMedicineFrequencyIsDaily(getTime().toString(), isDaily))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = isDaily.toString()))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = isDaily.toString()
+            )
+        )
 
         // Step 3: Implement the logic to handle the selected option
         // Here, you might want to update the UI state based on the selected option.
@@ -465,7 +548,6 @@ class GeminiViewModel : ViewModel() {
                 chatUiState.value = BotUiState.DE_MEDICINE_WEEKDAYS_STATE
             }
         }
-        chatUiState.value = BotUiState.DE_MEDICINE_WEEKDAYS_STATE
 
         // Step 4: Update the data
     }
@@ -475,7 +557,12 @@ class GeminiViewModel : ViewModel() {
         addHistory(BotComponent.DEMedicineWeekdaysState(getTime().toString(), frequency))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = frequency.toString()))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = frequency.toString()
+            )
+        )
 
         // Step 3: Implement the logic to handle the selected frequency
         // Here, you might want to update the UI state based on the selected frequency.
@@ -486,34 +573,46 @@ class GeminiViewModel : ViewModel() {
         // Step 4: Update the data
     }
 
-    private fun onDEMedicineNotificationStateSelected(shouldNotify: Boolean) {
+    fun onDEMedicineNotificationStateSelected(shouldNotify: Boolean) {
         // Step 1: Add the selected option to the history
         addHistory(BotComponent.DEMedicineNotificationState(getTime().toString(), shouldNotify))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = shouldNotify.toString()))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = shouldNotify.toString()
+            )
+        )
 
         // Step 3: Implement the logic to handle the selected option
         saveMedicineData()
-        when(shouldNotify){
+        when (shouldNotify) {
             true -> {
-                chatUiState.value = BotUiState.DE_MEDICINE_TIME_STATE
+                chatUiState.value = BotUiState.DE_MEDICINE_NOTIFICATION_TIME_STATE
             }
+
             false -> {
                 makeMedicineDataNull()
-                chatUiState.value = BotUiState.MENU
+                chatUiState.value = BotUiState.DE_MEDICINE_ADD_ONE_MORE_STATE
             }
         }
-        chatUiState.value = BotUiState.DE_MEDICINE_TIME_STATE
         // Step 4: Update the data
     }
 
-    private fun onDEMedicineTimeStateSelected(time: TimeEntity) {
+    private fun onDEMedicineNotificationTimeStateSelected(time: TimeEntity) {
         // Step 1: Add the selected time to the history
-        addHistory(BotComponent.DEMedicineTimeState(getTime().toString(), time))
+        addHistory(BotComponent.DEMedicineNotificationTimeState(getTime().toString(), time))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = time.toString()))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = formatTime(time)
+            )
+        )
+
+        addHistory(BotComponent.GeminiResponseState(getTime().toString(), "Well we will notify you!"))
 
         // Step 3: Implement the logic to handle the selected time
         // Here, you might want to update the UI state based on the selected time.
@@ -525,19 +624,25 @@ class GeminiViewModel : ViewModel() {
         // Step 4: Update the data
     }
 
-    private fun onDEMedicineAddOneMoreStateSelected(shouldAdd: Boolean) {
+    fun onDEMedicineAddOneMoreStateSelected(shouldAdd: Boolean) {
         // Step 1: Add the selected option to the history
         addHistory(BotComponent.DEMedicineAddOneMoreState(getTime().toString(), shouldAdd))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = shouldAdd.toString()))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = if (shouldAdd) "Yes" else "Skip"
+            )
+        )
 
         // Step 3: Implement the logic to handle the selected option
-        when(shouldAdd){
+        when (shouldAdd) {
             true -> {
                 makeMedicineDataNull()
                 chatUiState.value = BotUiState.DE_MEDICINE_SEARCH_STATE
             }
+
             false -> {
                 makeMedicineDataNull()
                 chatUiState.value = BotUiState.MENU
@@ -553,7 +658,12 @@ class GeminiViewModel : ViewModel() {
         addHistory(BotComponent.DEStatsCarouselState(getTime().toString(), selectedOption))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = selectedOption.displayName))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = selectedOption.displayName
+            )
+        )
 
         // Step 3: Implement the logic to handle the selected option
         when (selectedOption) {
@@ -567,7 +677,8 @@ class GeminiViewModel : ViewModel() {
             }
 
             StatsEntity.GLUCOSE -> {
-                chatUiState.value = BotUiState.DE_STATS_GLUCOSE_ENTRY_STATE
+                makeGlucoseNull()
+                chatUiState.value = BotUiState.DE_STATS_GLUCOSE_TEST_TYPE_STATE
             }
         }
 
@@ -580,7 +691,12 @@ class GeminiViewModel : ViewModel() {
         addHistory(BotComponent.DEStatsWeightEntryState(getTime().toString(), weight))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = weight.toString()))
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = weight.toString()
+            )
+        )
 
         // Step 3: Implement the logic to handle the selected weight
         // Here, you might want to update the UI state based on the selected weight.
@@ -595,10 +711,20 @@ class GeminiViewModel : ViewModel() {
 
     private fun onDEStatsBloodPressureSystolicEntryStateSelected(systolic: Int) {
         // Step 1: Add the selected systolic pressure to the history
-        addHistory(BotComponent.DEStatsBloodPressureSystolicEntryState(getTime().toString(), systolic))
+        addHistory(
+            BotComponent.DEStatsBloodPressureSystolicEntryState(
+                getTime().toString(),
+                systolic
+            )
+        )
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = systolic.toString()))
+//        addHistory(
+//            BotComponent.UserResponseState(
+//                id = getTime().toString(),
+//                response = systolic.toString()
+//            )
+//        )
 
         // Step 3: Implement the logic to handle the selected systolic pressure
         // Here, you might want to update the UI state based on the selected systolic pressure.
@@ -608,17 +734,27 @@ class GeminiViewModel : ViewModel() {
 
     }
 
-    private fun makeBPNull(){
+    private fun makeBPNull() {
         data.value = data.value.copy(systolicPressure = null)
         data.value = data.value.copy(diastolicPressure = null)
     }
 
     private fun onDEStatsBloodPressureDiastolicEntryStateSelected(diastolic: Int) {
         // Step 1: Add the selected diastolic pressure to the history
-        addHistory(BotComponent.DEStatsBloodPressureDiastolicEntryState(getTime().toString(), diastolic))
+        addHistory(
+            BotComponent.DEStatsBloodPressureDiastolicEntryState(
+                getTime().toString(),
+                diastolic
+            )
+        )
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = diastolic.toString()))
+//        addHistory(
+//            BotComponent.UserResponseState(
+//                id = getTime().toString(),
+//                response = diastolic.toString()
+//            )
+//        )
 
         // Step 3: Implement the logic to handle the selected diastolic pressure
         // Here, you might want to update the UI state based on the selected diastolic pressure.
@@ -631,12 +767,44 @@ class GeminiViewModel : ViewModel() {
         makeBPNull()
     }
 
+    private fun onGlucoseTestTypeSelected(glucoseTestType: GlucoseTestType) {
+        // Step 1: Add the selected glucose test type to the history
+        addHistory(BotComponent.DEStatsGlucoseTestTypeState(getTime().toString(), glucoseTestType))
+
+        // Step 2: Add response to the history
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = glucoseTestType.displayName
+            )
+        )
+
+        // Step 3: Implement the logic to handle the selected glucose test type
+        // Here, you might want to update the UI state based on the selected glucose test type.
+        // For example, you might want to move to the next UI state after the glucose test type is selected.
+        // This is just a placeholder. Replace it with your actual logic.
+        // Assuming the next state is DEStatsGlucoseEntryState
+        chatUiState.value = BotUiState.DE_STATS_GLUCOSE_ENTRY_STATE
+
+        // Step 4: Update the data
+    }
+
+    private fun makeGlucoseNull() {
+        data.value = data.value.copy(glucoseTestType = null)
+        data.value = data.value.copy(glucoseLevel = null)
+    }
+
     private fun onDEStatsGlucoseEntryStateSelected(glucose: Int) {
         // Step 1: Add the selected glucose level to the history
         addHistory(BotComponent.DEStatsGlucoseEntryState(getTime().toString(), glucose))
 
         // Step 2: Add response to the history
-        addHistory(BotComponent.UserResponseState(id = getTime().toString(), response = glucose.toString()))
+//        addHistory(
+//            BotComponent.UserResponseState(
+//                id = getTime().toString(),
+//                response = glucose.toString()
+//            )
+//        )
 
         // Step 3: Implement the logic to handle the selected glucose level
         // Here, you might want to update the UI state based on the selected glucose level.
@@ -646,7 +814,7 @@ class GeminiViewModel : ViewModel() {
         chatUiState.value = BotUiState.MENU
 
         // Step 4: Update the data
-        data.value = data.value.copy(glucoseLevel = null)
+        makeGlucoseNull()
     }
 }
 

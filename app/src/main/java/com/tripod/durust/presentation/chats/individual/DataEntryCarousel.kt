@@ -150,7 +150,7 @@ private fun lerp(start: Float, stop: Float, fraction: Float): Float {
 
 
 enum class DataEntryCarouselEntity(val displayName: String, val imageId: Int) {
-    FOOD("Food", R.drawable.foodjpg),
+    FOOD("Food", R.drawable.food7),
     EXERCISE("Exercise", R.drawable.deexcercise),
     SLEEP("Sleep", R.drawable.desleep),
     MEDICINE("Medicine", R.drawable.demedicine),

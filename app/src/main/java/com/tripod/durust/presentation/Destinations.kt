@@ -30,7 +30,4 @@ data class NavEmailVerificationScreen(
 )
 
 @Serializable
-object NavBakingScreen
-
-@Serializable
 object NavForgotPassword

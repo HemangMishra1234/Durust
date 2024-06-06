@@ -1,38 +1,65 @@
 package com.tripod.durust.presentation.datacollection
 
-import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerColors
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tripod.durust.data.DateEntity
 import com.tripod.durust.ui.theme.bodyFontFamily
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import java.util.Calendar
+import java.util.TimeZone
+
+fun utcToDateEntity(utc: Long): DateEntity {
+    val calendar = Calendar.getInstance().apply {
+        timeInMillis = utc
+    }
+    return DateEntity(
+        day = calendar.get(Calendar.DAY_OF_MONTH),
+        month = calendar.get(Calendar.MONTH) + 1, // Calendar.MONTH is zero-based
+        year = calendar.get(Calendar.YEAR)
+    )
+}
+
+fun dateEntityToMillis(dateEntity: DateEntity): Long {
+    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    calendar.set(Calendar.YEAR, dateEntity.year)
+    calendar.set(Calendar.MONTH, dateEntity.month - 1) // Calendar.MONTH is zero-based
+    calendar.set(Calendar.DAY_OF_MONTH, dateEntity.day)
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    return calendar.timeInMillis
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -41,43 +68,40 @@ fun DatePickerCardPreview() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF7788F4)),
-        contentAlignment = Alignment.Center) {
-//        DatePickerCard(
-//            initialDate = DateEntity(year = 1990, month = 1, day = 1),
-//            isEnabled = true,
-//            onDateChanged = {}
-//        )
+        contentAlignment = Alignment.Center
+    ) {
+        DatePickerCard(
+            initialDate = DateEntity(year = 1990, month = 1, day = 1),
+            isEnabled = true,
+            onDateChanged = {}
+        )
 //        HeightPickerCard()
     }
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerCard(initialDate : DateEntity,isEnabled: Boolean, onDateChanged:(DateEntity)->Unit) {
-    val years = remember { (1900..2100).map { it.toString() } }
-    val months = remember { listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec") }
-    val days = remember { (1..31).map { it.toString() } }
+fun DatePickerCard(
+    initialDate: DateEntity,
+    isEnabled: Boolean,
+    onDateChanged: (DateEntity) -> Unit
+) {
+    val datePickerState = rememberDatePickerState(dateEntityToMillis(initialDate))
 
-    val yearState = rememberDatePickerState()
-    val monthState = rememberDatePickerState()
-    val dayState = rememberDatePickerState()
-
-    LaunchedEffect(key1 = yearState.selectedItem, key2 = monthState.selectedItem, key3 = dayState.selectedItem) {
+    LaunchedEffect(key1 = datePickerState.selectedDateMillis) {
         try {
-            Log.i(
-                "DatePickerCard",
-                "yearState: ${yearState.selectedItem + 1}, monthState: ${monthState.selectedItem + 1}, dayState: ${dayState.selectedItem + 1}"
-            )
-        onDateChanged(DateEntity(year = yearState.selectedItem.toInt() + 1, month = months.indexOf(monthState.selectedItem) + 2, day = dayState.selectedItem.toInt() + 1))
-        }catch (_: Exception){
+            if (datePickerState.selectedDateMillis != null)
+                onDateChanged(utcToDateEntity(datePickerState.selectedDateMillis!!))
+        } catch (_: Exception) {
         }
     }
 
     Card(
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF7788F4),
-        ),
+//        colors = CardDefaults.cardColors(
+//            containerColor = Color(0xFF7788F4),
+//        ),
         modifier = Modifier
             .shadow(
                 elevation = 3.3796792030334473.dp,
@@ -86,233 +110,73 @@ fun DatePickerCard(initialDate : DateEntity,isEnabled: Boolean, onDateChanged:(D
                 shape = RoundedCornerShape(10.dp)
             )
             .border(
-                BorderStroke(width = 0.75598.dp, color = Color(0xFFEEF6F8)),
+                BorderStroke(width = 0.75598.dp, color = Color(0xAAEFF6F8)),
                 shape = RoundedCornerShape(size = 10.dp)
             )
-            .width(316.dp)
-            .height(198.06699.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                HeadingCard(text = "Year")
-                HeadingCard(text = "Month")
-                HeadingCard(text = "Day")
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .shadow(
-                        elevation = 5.dp,
-                        spotColor = Color(0x40000000),
-                        ambientColor = Color(0x40000000)
+            AnimatedVisibility(isEnabled) {
+                DatePicker(
+                    state = datePickerState,
+                    modifier = Modifier,
+                    colors = DatePickerDefaults.colors(
+                        containerColor = Color.White,
                     )
-                    .width(299.36844.dp)
-                    .height(145.14833.dp)
-                    .background(color = Color.White, shape = RoundedCornerShape(size = 9.44976.dp))
-            ) {
-                if(isEnabled) {
-                    DatePicker(
-                        items = years,
-                        state = yearState,
-                        visibleItemsCount = 3,
-                        textStyle = TextStyle(fontSize = 15.sp),
-                        modifier = Modifier.weight(1f),
-                        startIndex = initialDate.year - 1900,
-                        isEnabled = isEnabled
-                    )
-                    DatePicker(
-                        modifier = Modifier.weight(1f),
-                        items = months,
-                        state = monthState,
-                        startIndex = initialDate.month - 1,
-                        visibleItemsCount = 3,
-                        textStyle = TextStyle(fontSize = 15.sp),
-                        isEnabled = isEnabled
-                    )
-                    DatePicker(
-                        modifier = Modifier.weight(1f),
-                        items = days,
-                        state = dayState,
-                        startIndex = initialDate.day - 1,
-                        visibleItemsCount = 3,
-                        textStyle = TextStyle(fontSize = 15.sp),
-                        isEnabled = isEnabled
-                    )
-                }else{
-                    Text(
-                        text = initialDate.year.toString(),
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            fontFamily = bodyFontFamily,
-                            fontWeight = FontWeight(400),
-                            color = Color(0xFF454547)
-                        ),
-                        modifier = Modifier.weight(1f)
-                        , textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = months[initialDate.month - 1],
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            fontFamily = bodyFontFamily,
-                            fontWeight = FontWeight(400),
-                            color = Color(0xFF454547)
-                        ),
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = initialDate.day.toString(),
-                        style = TextStyle(
-                            fontSize = 15.sp,
-                            fontFamily = bodyFontFamily,
-                            fontWeight = FontWeight(400),
-                            color = Color(0xFF454547)
-                        ),
-                        modifier = Modifier.weight(1f)
-                        , textAlign = TextAlign.Center
-                    )
-
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun HeadingCard(text: String){
-    Card(
-        shape = RoundedCornerShape(size = 9.44976.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFAED5FF),
-        ),
-        modifier = Modifier
-            .width(80.dp)
-            .height(26.45933.dp)
-            .shadow(
-                4.dp,
-                spotColor = Color.Black,
-                ambientColor = Color.Black,
-                shape = RoundedCornerShape(9.44976.dp)
-            )
-    , elevation = CardDefaults.elevatedCardElevation(
-        defaultElevation = 4.dp
-    )){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-            Text(
-                text = text,
-                style = TextStyle(
-                    fontSize = 15.12.sp,
-                    fontFamily = bodyFontFamily,
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFF454547)
-                    ,
                 )
-            )
-        }
-    }
-}
-
-
-
-
-@Composable
-fun DatePicker(
-    modifier: Modifier = Modifier,
-    items: List<String>,
-    state: DatePickerState = rememberDatePickerState(),
-    startIndex: Int = 0,
-    visibleItemsCount: Int = 3,
-    textModifier: Modifier = Modifier,
-    textStyle: TextStyle = LocalTextStyle.current,
-    isEnabled: Boolean,
-) {
-
-    val visibleItemsMiddle = visibleItemsCount / 2
-    val listScrollCount = Integer.MAX_VALUE
-    val listScrollMiddle = listScrollCount / 2
-    val listStartIndex = listScrollMiddle - listScrollMiddle % items.size - visibleItemsMiddle + startIndex
-
-    fun getItem(index: Int) = items[index % items.size]
-
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = listStartIndex)
-    val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
-
-    val itemHeightPixels = remember { mutableIntStateOf(0) }
-    val itemHeightDp = pixelsToDp(itemHeightPixels.value)
-
-    val fadingEdgeGradient = remember {
-        Brush.verticalGradient(
-            0f to Color.Transparent,
-            0.5f to Color.Black,
-            1f to Color.Transparent
-        )
-    }
-
-        LaunchedEffect(listState) {
-            snapshotFlow { listState.firstVisibleItemIndex }
-                .map { index -> getItem(index + visibleItemsMiddle) }
-                .distinctUntilChanged()
-                .collect { item -> state.selectedItem = item }
-        }
-
-
-    Box(modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-
-        LazyColumn(
-            state = listState,
-            flingBehavior = flingBehavior,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(itemHeightDp * visibleItemsCount + 50.dp)
-                .fadingEdge(fadingEdgeGradient)
-        ) {
-            items(listScrollCount) { index ->
+            } 
+            AnimatedVisibility(visible = !isEnabled){
                 Text(
-                    text = getItem(index),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = textStyle,
-                    modifier = Modifier
-                        .onSizeChanged { size -> itemHeightPixels.value = size.height }
-                        .then(textModifier)
+                    text = "${initialDate.day.toString().padStart(2, '0')}/" +
+                            "${initialDate.month.toString().padStart(2, '0')}/" +
+                            initialDate.year.toString().padStart(4, '0'),
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontFamily = bodyFontFamily,
+                        fontWeight = FontWeight(400),
+                        color = Color.Black,
+                        textAlign = TextAlign.Center,
+                    )
                 )
             }
         }
     }
 
-}
-
-private fun Modifier.fadingEdge(brush: Brush) = this
-    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-    .drawWithContent {
-        drawContent()
-        drawRect(brush = brush, blendMode = BlendMode.DstIn)
+    @Composable
+    fun HeadingCard(text: String, onClick: () -> Unit = {}) {
+        Card(
+            onClick = onClick,
+            shape = RoundedCornerShape(size = 9.44976.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFAED5FF),
+            ),
+            modifier = Modifier
+                .width(80.dp)
+                .height(26.45933.dp)
+                .shadow(
+                    4.dp,
+                    spotColor = Color.Black,
+                    ambientColor = Color.Black,
+                    shape = RoundedCornerShape(9.44976.dp)
+                ), elevation = CardDefaults.elevatedCardElevation(
+                defaultElevation = 4.dp
+            )
+        ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = text,
+                    style = TextStyle(
+                        fontSize = 15.12.sp,
+                        fontFamily = bodyFontFamily,
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFF454547),
+                    )
+                )
+            }
+        }
     }
-
-@Composable
-private fun pixelsToDp(pixels: Int) = with(LocalDensity.current) { pixels.toDp() }
-
-@Composable
-fun rememberDatePickerState() = remember { DatePickerState() }
-
-class DatePickerState {
-    var selectedItem by mutableStateOf("")
 }

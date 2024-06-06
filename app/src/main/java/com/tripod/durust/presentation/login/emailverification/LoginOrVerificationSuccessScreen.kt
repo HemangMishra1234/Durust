@@ -40,13 +40,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.tripod.durust.R
-import com.tripod.durust.presentation.NavBakingScreen
+import com.tripod.durust.presentation.Loading.NavLoadingScreen
 import com.tripod.durust.presentation.login.createaccount.AppButton
 import com.tripod.durust.presentation.login.login.HeadingOfLoginScreen
 import com.tripod.durust.ui.theme.bodyFontFamily
@@ -84,19 +83,21 @@ fun LogInSuccess(navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     item {
-                        Spacer(modifier =Modifier.height(24.dp))
-                        HeadingOfLoginScreen(largeText ="Yay! Login Successful", smallText ="")
+                        Spacer(modifier = Modifier.height(24.dp))
+                        HeadingOfLoginScreen(largeText = "Yay! Login Successful", smallText = "")
                     }
                     item {
-                        AnimatedVisibility(visible = imageVisible,
-                            enter = fadeIn()+ scaleIn(), exit = fadeOut()+scaleOut()) {
+                        AnimatedVisibility(
+                            visible = imageVisible,
+                            enter = fadeIn() + scaleIn(), exit = fadeOut() + scaleOut()
+                        ) {
                             Image(
                                 painter = painterResource(id = R.drawable.loginsuccesscenter),
                                 contentDescription = null
                             )
                         }
-                            if(!imageVisible)
-                                Spacer(modifier = Modifier.height(300.dp))
+                        if (!imageVisible)
+                            Spacer(modifier = Modifier.height(300.dp))
                     }
                 }
             }
@@ -105,11 +106,13 @@ fun LogInSuccess(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(60.dp))
-                AppButton(modifier = Modifier.width(314.dp),
-                    text = "Next", isEnabled = true){
-                    navController.navigate(NavBakingScreen)
+                AppButton(
+                    modifier = Modifier.width(314.dp),
+                    text = "Next", isEnabled = true
+                ) {
+                    navController.navigate(NavLoadingScreen)
                 }
-                Spacer(modifier =Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 BottomRowOfLoginSuccess()
                 Spacer(modifier = Modifier.height(52.dp))
             }
@@ -165,27 +168,34 @@ fun VerificationSuccess(navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     item {
-                         Spacer(modifier =Modifier.height(24.dp))
-                        HeadingOfLoginScreen(largeText ="Verification Success", smallText ="")                    }
-                    item {AnimatedVisibility(visible = imageVisible,
-                        enter = fadeIn()+ scaleIn(), exit = fadeOut()+scaleOut()) {
-                        Image(
-                            painter = painterResource(id = R.drawable.verificationsuccesscenter),
-                            contentDescription = null
-                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        HeadingOfLoginScreen(largeText = "Verification Success", smallText = "")
                     }
-                        if(!imageVisible)
-                            Spacer(modifier = Modifier.height(300.dp)) }
+                    item {
+                        AnimatedVisibility(
+                            visible = imageVisible,
+                            enter = fadeIn() + scaleIn(), exit = fadeOut() + scaleOut()
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.verificationsuccesscenter),
+                                contentDescription = null
+                            )
+                        }
+                        if (!imageVisible)
+                            Spacer(modifier = Modifier.height(300.dp))
+                    }
                     item {
                         Spacer(modifier = Modifier.height(60.dp))
-                        AppButton(modifier = Modifier.width(314.dp),
-                            text = "Next", isEnabled = true){
+                        AppButton(
+                            modifier = Modifier.width(314.dp),
+                            text = "Next", isEnabled = true
+                        ) {
                             //Continue here with logic
-                            navController.navigate(NavBakingScreen)
+                            navController.navigate(NavLoadingScreen)
                         }
                     }
                     item {
-                        Spacer(modifier =Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                         BottomRowOfLoginSuccess()
                     }
 
@@ -212,7 +222,7 @@ fun VerificationSuccess(navController: NavController) {
 }
 
 @Composable
-fun BottomRowOfLoginSuccess(){
+fun BottomRowOfLoginSuccess() {
     Row(
         horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.Start),
         verticalAlignment = Alignment.Top,

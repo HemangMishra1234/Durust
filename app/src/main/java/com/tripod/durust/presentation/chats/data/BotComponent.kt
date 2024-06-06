@@ -1,10 +1,11 @@
 package com.tripod.durust.presentation.chats.data
 
 import com.tripod.durust.presentation.chats.individual.DataEntryCarouselEntity
+import com.tripod.durust.presentation.chats.individual.GlucoseTestType
 import com.tripod.durust.presentation.chats.individual.MedicineFrequency
+import com.tripod.durust.presentation.chats.individual.MedicineTime
 import com.tripod.durust.presentation.chats.individual.MenuOptions
 import com.tripod.durust.presentation.chats.individual.StatsEntity
-import com.tripod.durust.presentation.chats.individual.TimeDuration
 import com.tripod.durust.presentation.datacollection.ExerciseType
 import com.tripod.durust.presentation.datacollection.TimeEntity
 import com.tripod.durust.presentation.datacollection.WakeSleepEntity
@@ -42,7 +43,7 @@ sealed class BotComponent {
 
     data class DEExerciseDurationState(
         val id: String,
-        val duration: TimeDuration
+        val duration: TimeEntity
     ) : BotComponent()
 
     data class DEExerciseAddOneMoreState(
@@ -60,6 +61,11 @@ sealed class BotComponent {
         val medicine: String,
     ) : BotComponent()
 
+    data class DEMedicineTimeState(
+        val id: String,
+        val time: MedicineTime
+    ) : BotComponent()
+
     data class DEMedicineFrequencyIsDaily(
         val id: String,
         val isDaily: Boolean
@@ -75,7 +81,7 @@ sealed class BotComponent {
         val shouldNotify: Boolean
     ) : BotComponent()
 
-    data class DEMedicineTimeState(
+    data class DEMedicineNotificationTimeState(
         val id: String,
         val time: TimeEntity
     ) : BotComponent()
@@ -106,6 +112,12 @@ sealed class BotComponent {
         val diastolic: Int
     ) : BotComponent()
 
+    data class DEStatsGlucoseTestTypeState(
+        val id: String,
+        val glucoseTestType: GlucoseTestType
+    ) : BotComponent()
+
+
     data class DEStatsGlucoseEntryState(
         val id: String,
         val glucose: Int
@@ -114,23 +126,25 @@ sealed class BotComponent {
 }
 
 data class GeminiData(
-val selectedCarouselEntity: DataEntryCarouselEntity? = null,
-val selectedExerciseType: ExerciseType? = null,
-val exerciseDuration: TimeDuration? = null,
-val shouldAddExercise: Boolean? = null,
-val caloriesBurnt: Int? = null,
-val sleepDuration: WakeSleepEntity? = null,
-val medicineName: String? = null,
-val isMedicineDaily: Boolean? = null,
-val medicineFrequency: List<MedicineFrequency>? = null,
-val shouldNotifyForMedicine: Boolean? = null,
-val medicineTime: TimeEntity? = null,
-val shouldAddMedicine: Boolean? = null,
-val selectedStatsEntity: StatsEntity? = null,
-val weight: Float? = null,
-val systolicPressure: Int? = null,
-val diastolicPressure: Int? = null,
-val glucoseLevel: Int? = null
+    val selectedCarouselEntity: DataEntryCarouselEntity? = null,
+    val selectedExerciseType: ExerciseType? = null,
+    val exerciseDuration: TimeEntity? = null,
+    val shouldAddExercise: Boolean? = null,
+    val caloriesBurnt: Int? = null,
+    val sleepDuration: WakeSleepEntity? = null,
+    val medicineName: String? = null,
+    val medicineTime: MedicineTime? = null,
+    val isMedicineDaily: Boolean? = null,
+    val medicineFrequency: List<MedicineFrequency>? = null,
+    val shouldNotifyForMedicine: Boolean? = null,
+    val medicineNotifcationTime: TimeEntity? = null,
+    val shouldAddMedicine: Boolean? = null,
+    val selectedStatsEntity: StatsEntity? = null,
+    val weight: Float? = null,
+    val systolicPressure: Int? = null,
+    val diastolicPressure: Int? = null,
+    val glucoseTestType: GlucoseTestType? = null,
+    val glucoseLevel: Int? = null
 )
 
 
@@ -143,14 +157,16 @@ enum class BotUiState(val stateSerialNo: Int){
     DE_EXERCISE_ADD_ONE_MORE_STATE(6),
     DE_SLEEP_DURATION_STATE(7),
     DE_MEDICINE_SEARCH_STATE(8),
-    DE_MEDICINE_FREQUENCY_IS_DAILY(9),
-    DE_MEDICINE_WEEKDAYS_STATE(10),
-    DE_MEDICINE_NOTIFICATION_STATE(11),
-    DE_MEDICINE_TIME_STATE(12),
-    DE_MEDICINE_ADD_ONE_MORE_STATE(13),
-    DE_STATS_CAROUSEL_STATE(14),
-    DE_STATS_WEIGHT_ENTRY_STATE(15),
-    DE_STATS_BLOOD_PRESSURE_SYSTOLIC_ENTRY_STATE(16),
-    DE_STATS_BLOOD_PRESSURE_DIASTOLIC_ENTRY_STATE(17),
-    DE_STATS_GLUCOSE_ENTRY_STATE(18)
+    DE_MEDICINE_TIME(9),
+    DE_MEDICINE_FREQUENCY_IS_DAILY(10),
+    DE_MEDICINE_WEEKDAYS_STATE(11),
+    DE_MEDICINE_NOTIFICATION_STATE(12),
+    DE_MEDICINE_NOTIFICATION_TIME_STATE(13),
+    DE_MEDICINE_ADD_ONE_MORE_STATE(14),
+    DE_STATS_CAROUSEL_STATE(15),
+    DE_STATS_WEIGHT_ENTRY_STATE(16),
+    DE_STATS_BLOOD_PRESSURE_SYSTOLIC_ENTRY_STATE(17),
+    DE_STATS_BLOOD_PRESSURE_DIASTOLIC_ENTRY_STATE(18),
+    DE_STATS_GLUCOSE_TEST_TYPE_STATE(19),
+    DE_STATS_GLUCOSE_ENTRY_STATE(20)
 }

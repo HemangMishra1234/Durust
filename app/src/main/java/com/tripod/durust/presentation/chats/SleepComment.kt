@@ -5,11 +5,11 @@ import com.tripod.durust.presentation.datacollection.WakeSleepEntity
 
 // Function to calculate the sleep duration in minutes
 fun calculateSleepDuration(wakeTime: TimeEntity, sleepTime: TimeEntity): Int {
-    val wakeInMinutes = wakeTime.hour * 60 + wakeTime.minute + if (wakeTime.amPm == "PM") 12 * 60 else 0
-    val sleepInMinutes = sleepTime.hour * 60 + sleepTime.minute + if (sleepTime.amPm == "PM") 12 * 60 else 0
+    val wakeInMinutes = wakeTime.hour * 60 + wakeTime.minute
+    val sleepInMinutes = sleepTime.hour * 60 + sleepTime.minute
 
     return if (sleepInMinutes >= wakeInMinutes) {
-        sleepInMinutes - wakeInMinutes
+        24*60 -sleepInMinutes + wakeInMinutes
     } else {
         // Assuming that sleep time is on the next day
         (sleepInMinutes + 24 * 60) - wakeInMinutes

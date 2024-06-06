@@ -34,7 +34,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.tripod.durust.data.DateEntity
 import com.tripod.durust.getScreenHeightInDP
+import kotlinx.serialization.Serializable
 
+@Serializable
+object NavChatScreen
 
 @Composable
 fun ChatScreen(viewModel: ChatComponentViewModel) {
@@ -68,17 +71,23 @@ fun ChatScreen(viewModel: ChatComponentViewModel) {
                 .fillMaxSize()
                 .background(color = Color(0xFF7788F4))
         ) {
+            Box(modifier = Modifier.fillMaxSize()
+                .align(Alignment.TopCenter)){
+                TopChatBar(viewModel)
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(getScreenHeightInDP().dp - 56.dp)
+                    .align(Alignment.BottomCenter)
+                    .padding(top = 76.dp, bottom = 90.dp)
             ) {
-                TopChatBar(viewModel)
+
                 LazyColumn(
                     state = columnState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
+                        .padding(horizontal = 6.dp)
                 ) {
                     Log.i("ChatScreen", "ChatComponentsHistory: $chatComponents")
                     items(chatComponents.size) { index ->
@@ -181,8 +190,6 @@ fun ChatScreen(viewModel: ChatComponentViewModel) {
                                 ) {
                                     _,_->
                                 }
-
-                                else -> {}
                             }
                         }
                         Spacer(modifier = Modifier.height(18.dp))
@@ -302,8 +309,8 @@ fun ChatScreen(viewModel: ChatComponentViewModel) {
                                     WakeSleepTimeInputMain(
                                         onBoardingChatComponent = OnBoardingChatComponent.SleepSchedule(
                                             id = "5",
-                                            schedule = WakeSleepEntity(TimeEntity(6, 15, "AM"),
-                                                TimeEntity(11, 15, "PM"))
+                                            schedule = WakeSleepEntity(TimeEntity(6, 15),
+                                                TimeEntity(11, 15))
                                         ), viewModel = viewModel, isActive = true
                                     ) { isDone2, it ->
                                         onNext = it
@@ -342,7 +349,6 @@ fun ChatScreen(viewModel: ChatComponentViewModel) {
                                         onNext = it
                                         isDone = isDone2
                                     }
-                                else -> {}
                             }
                         }
                     }
@@ -396,7 +402,6 @@ fun CheckUpFrequencyInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(checkUpFrequency = frequency)
-            Toast.makeText(context, "Exercise frequency is $frequency", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.RoutineCheckUpFrequency(
                     id = getTime().toString(),
@@ -440,7 +445,6 @@ fun HealthConditionInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(healthIssues = healthCondition)
-            Toast.makeText(context, "Health condition is $healthCondition", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.HealthIssues(
                     id = getTime().toString(),
@@ -478,7 +482,6 @@ fun CalorieIntakeInputMain(
     onNext(isActive && calorieIntake.isNotEmpty() && calorieIntake.toIntOrNull() != null) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(calorieIntake = calorieIntake.toInt())
-            Toast.makeText(context, "Calorie intake is $calorieIntake", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.CalorieIntake(
                     id = getTime().toString(),
@@ -510,8 +513,8 @@ fun WakeSleepTimeInputMain(
         Box(modifier = Modifier.align(Alignment.End)) {
             WakeUpTimeAndBedTime(
                 initialSchedule = if (!isActive) onBoardingChatComponent.schedule else WakeSleepEntity(
-                    TimeEntity(6, 0, "AM"),
-                    TimeEntity(10, 0, "PM")
+                    TimeEntity(6, 0),
+                    TimeEntity(10, 0)
                 ),
                 isEnabled = isActive
             ) { selectedWakeSleepEntity ->
@@ -528,7 +531,6 @@ fun WakeSleepTimeInputMain(
                 wakeUpTime = wakeSleepEntity.wakeTime,
                 sleepTime = wakeSleepEntity.sleepTime
             )
-            Toast.makeText(context, "Sleep schedule is ${wakeSleepEntityToString(wakeSleepEntity)}", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.SleepSchedule(
                     id = getTime().toString(),
@@ -572,7 +574,6 @@ fun MealPreferenceInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(mealPreferenceEntity = mealPreferenceEntity)
-            Toast.makeText(context, "Meal preference is $mealPreferenceEntity", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.MealPreference(
                     id = getTime().toString(),
@@ -616,7 +617,6 @@ fun StepsInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(stepsInput = stepsInputEntity)
-            Toast.makeText(context, "Step count preference is $stepsInputEntity", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.StepCountInput(
                     id = getTime().toString(),
@@ -663,7 +663,6 @@ fun ExercisePreferenceInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(exercisePreference = exerciseType)
-            Toast.makeText(context, "Exercise preference is $exerciseType", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.PreferredExerciseInput(
                     id = getTime().toString(),
@@ -705,7 +704,6 @@ fun ExerciseFrequencyInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(exerciseFrequency = sliderPosition)
-            Toast.makeText(context, "Exercise frequency slider position is $sliderPosition", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.ExerciseFrequencyInput(
                     id = getTime().toString(),
@@ -738,7 +736,6 @@ fun HeightInputMain(
                     onNext(isActive) {
                         if (isActive) {
                             viewModel.data = viewModel.data.copy(height = height)
-                            Toast.makeText(context, "Height is $height", Toast.LENGTH_SHORT).show()
                             viewModel.addHistory(
                                 OnBoardingChatComponent.HeightInput(
                                     id = getTime().toString(),
@@ -787,7 +784,6 @@ fun DateInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(birthday = date)
-            Toast.makeText(context, "Date is $date", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.BirthdayInput(
                     id = getTime().toString(),
@@ -829,7 +825,6 @@ fun WeightInputMain(
     onNext(isActive && isAnswered) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(weight = weight)
-            Toast.makeText(context, "Weight is $weight", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.WeightInput(
                     id = getTime().toString(),
@@ -872,7 +867,6 @@ fun GenderInputMain(
         onNext(isActive && isAnswered) {
             if (isActive) {
                 viewModel.data = viewModel.data.copy(gender = genderEntity)
-                Toast.makeText(context, "Gender is $genderEntity", Toast.LENGTH_SHORT).show()
                 viewModel.addHistory(
                     OnBoardingChatComponent.GenderInputUI(
                         id = getTime().toString(),
@@ -909,7 +903,6 @@ fun NameInputText(
     onNext(isActive && name.isNotEmpty()) {
         if (isActive) {
             viewModel.data = viewModel.data.copy(name = name)
-            Toast.makeText(context, "Name is $name", Toast.LENGTH_SHORT).show()
             viewModel.addHistory(
                 OnBoardingChatComponent.NameInputText(
                     id = getTime().toString(),

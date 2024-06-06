@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -34,12 +35,18 @@ import com.tripod.durust.data.HealthConnectAvailability
 import com.tripod.durust.data.HealthConnectManager
 import com.tripod.durust.data.PrimaryUserData
 import com.tripod.durust.domain.repositories.PrimaryUserDataRepo
+import com.tripod.durust.presentation.Loading.LoadingScreen
+import com.tripod.durust.presentation.Loading.LoadingViewModel
+import com.tripod.durust.presentation.Loading.LoadingViewModelFactory
+import com.tripod.durust.presentation.Loading.NavLoadingScreen
 import com.tripod.durust.presentation.chats.BotScreen
 import com.tripod.durust.presentation.chats.GeminiViewModel
 import com.tripod.durust.presentation.chats.GeminiViewModelFactory
+import com.tripod.durust.presentation.chats.NavBotScreen
 import com.tripod.durust.presentation.datacollection.ChatComponentViewModel
 import com.tripod.durust.presentation.datacollection.ChatComponentViewModelFactory
 import com.tripod.durust.presentation.datacollection.ChatScreen
+import com.tripod.durust.presentation.datacollection.NavChatScreen
 import com.tripod.durust.presentation.login.createaccount.CreateAccountPasswordScreen
 import com.tripod.durust.presentation.login.createaccount.CreateAccountViewModel
 import com.tripod.durust.presentation.login.createaccount.CreateAccountViewModelFactory
@@ -59,6 +66,7 @@ import com.tripod.durust.ui.theme.DurustTheme
 class MainActivity : ComponentActivity() {
     val auth = FirebaseAuth.getInstance()
     val primaryUserDataRepo = PrimaryUserDataRepo(auth)
+    val loadingViewModel = LoadingViewModelFactory(auth).create(LoadingViewModel::class.java)
 
     companion object{
     var alarmItem: AlarmItem? = null
@@ -77,11 +85,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             DurustTheme {
                 val navController = rememberNavController()
+                chatComponentViewModel.navController = navController
                 val loginViewModel: LoginViewModel = viewModel(factory = LoginViewModelFactory(auth))
                 val createAccountViewModel: CreateAccountViewModel = viewModel(factory = CreateAccountViewModelFactory(auth))
                 val emailVerificationViewModel: EmailVerificationViewModel = viewModel(factory = EmailVerificationViewModelFactory(auth))
                 NavHost(navController = navController, startDestination =if(FirebaseAuth.getInstance().currentUser != null)
-                    NavTest
+                    NavLoadingScreen
                     else NavOnBoardingScreen
                 ) {
                     composable<NavTest>{
@@ -126,15 +135,19 @@ class MainActivity : ComponentActivity() {
                     composable<NavForgotPassword> { 
                         ForgotPassword(navController = navController)
                     }
-                    composable<NavBakingScreen>(
-                        enterTransition = {
-
-                            expandHorizontally(animationSpec = tween(1000))
-//                            slideInHorizontally(animationSpec = tween(1000),
-//                                initialOffsetX = { fullWidth->fullWidth })
+                    composable<NavLoadingScreen> {
+                        loadingViewModel.fetchData()
+                        LaunchedEffect(key1 = loadingViewModel.isLoadingComplete.value) {
+                            if(loadingViewModel.isLoadingComplete.value)
+                            loadingViewModel.onCompleterFetch(navController)
                         }
-                            ){
-//                        BakingScreen()
+                        LoadingScreen()
+                    }
+                    composable<NavChatScreen> {
+                        ChatScreen(viewModel = chatComponentViewModel)
+                    }
+                    composable<NavBotScreen> {
+                        BotScreen(geminiViewModel = geminiViewModel)
                     }
                 }
             }

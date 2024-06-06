@@ -14,8 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import com.tripod.durust.GeminiUiState
 
 enum class GeminiPrompts(val prompt: String){
-    DEFAULT("You are a chat bot in a heath app Durust. " +
-            "Don't use any bold, just plain text"+
+    DEFAULT("You are a chat bot girl named Dhithi in a heath app Durust. " +
+            ""+
             "You can give recommendations to users and take their doubts." +
             "But respond like a friendly human. Give response in html. This is the user's query:"),
 }
@@ -25,13 +25,6 @@ fun GeminiResponseBase(geminiViewModel: GeminiViewModel){
     var result by rememberSaveable { mutableStateOf("Hello I am your assistant....") }
     val uiState by geminiViewModel.geminiUiState.collectAsState()
     val context = LocalContext.current
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        ChatRow(chatText = result, isHtml = false)
-    }
-
     when(uiState){
         is GeminiUiState.Success -> {
             result = (uiState as GeminiUiState.Success).outputText
@@ -45,8 +38,13 @@ fun GeminiResponseBase(geminiViewModel: GeminiViewModel){
         is GeminiUiState.Initial -> {
             result = "Hello I am your assistant...."
         }
-        else -> {
-            result = "Hello I am your assistant...."
-        }
     }
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        if(uiState != GeminiUiState.Success(""))
+        ChatRow(chatText = result, isAI = true)
+    }
+
+
 }

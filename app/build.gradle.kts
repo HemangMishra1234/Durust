@@ -89,4 +89,5 @@ dependencies {
     implementation("com.cuberto:liquid-swipe:1.0.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.airbnb.android:lottie-compose:6.4.1")
 }
