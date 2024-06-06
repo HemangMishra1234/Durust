@@ -18,7 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.tripod.durust.BakingScreen
+//import com.tripod.durust.BakingScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -80,7 +80,9 @@ fun MyApp() {
         val navController = rememberNavController()
         NavHost(navController, startDestination = "home") {
             composable("home") { SemicircleAnimation(navController) }
-            composable("nextScreen") { BakingScreen() }
+            composable("nextScreen") {
+//                BakingScreen()
+            }
         }
     }
 }

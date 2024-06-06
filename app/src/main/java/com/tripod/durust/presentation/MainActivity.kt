@@ -25,14 +25,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.google.firebase.auth.FirebaseAuth
-import com.tripod.durust.BakingScreen
+//import com.tripod.durust.BakingScreen
 import com.tripod.durust.BaseApplication
 import com.tripod.durust.presentation.login.createaccount.CreateAccountEmailScreen
 import com.tripod.durust.data.AlarmItem
 import com.tripod.durust.data.AndroidAlarmSchedular
 import com.tripod.durust.data.HealthConnectAvailability
 import com.tripod.durust.data.HealthConnectManager
-import com.tripod.durust.presentation.datacollection.ChatComponent
+import com.tripod.durust.data.PrimaryUserData
+import com.tripod.durust.domain.repositories.PrimaryUserDataRepo
+import com.tripod.durust.presentation.chats.BotScreen
+import com.tripod.durust.presentation.chats.GeminiViewModel
+import com.tripod.durust.presentation.chats.GeminiViewModelFactory
 import com.tripod.durust.presentation.datacollection.ChatComponentViewModel
 import com.tripod.durust.presentation.datacollection.ChatComponentViewModelFactory
 import com.tripod.durust.presentation.datacollection.ChatScreen
@@ -53,9 +57,12 @@ import com.tripod.durust.ui.theme.DurustTheme
 
 
 class MainActivity : ComponentActivity() {
+    val auth = FirebaseAuth.getInstance()
+    val primaryUserDataRepo = PrimaryUserDataRepo(auth)
 
     companion object{
     var alarmItem: AlarmItem? = null
+        var primaryUserData = mutableStateOf<PrimaryUserData?>(null)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         // Access your API key as a Build Configuration variable
@@ -64,11 +71,11 @@ class MainActivity : ComponentActivity() {
         signOutIfEmailNotVerified()
         val schedular= AndroidAlarmSchedular(this)
         val healthConnectManager = (application as BaseApplication).healthConnectManager
-        val chatComponentViewModel = ChatComponentViewModelFactory().create(ChatComponentViewModel::class.java)
+        val chatComponentViewModel = ChatComponentViewModelFactory(primaryUserDataRepo).create(ChatComponentViewModel::class.java)
+        val geminiViewModel = GeminiViewModelFactory().create(GeminiViewModel::class.java)
         enableEdgeToEdge()
         setContent {
             DurustTheme {
-                val auth = FirebaseAuth.getInstance()
                 val navController = rememberNavController()
                 val loginViewModel: LoginViewModel = viewModel(factory = LoginViewModelFactory(auth))
                 val createAccountViewModel: CreateAccountViewModel = viewModel(factory = CreateAccountViewModelFactory(auth))
@@ -82,8 +89,8 @@ class MainActivity : ComponentActivity() {
 //                        AlarmUI(schedular = schedular)
 //                        LogInSuccess(navController)
 //                        VerificationSuccess(navController)
-//                        BakingScreen()
-                        ChatScreen(chatComponentViewModel)
+                        BotScreen(geminiViewModel = geminiViewModel)
+//                        ChatScreen(chatComponentViewModel)
 //                        CircleRevealPager()
 //                        LiquidPagerScreen(context = this@MainActivity)
                     }
@@ -127,7 +134,7 @@ class MainActivity : ComponentActivity() {
 //                                initialOffsetX = { fullWidth->fullWidth })
                         }
                             ){
-                        BakingScreen()
+//                        BakingScreen()
                     }
                 }
             }

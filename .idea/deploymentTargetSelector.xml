@@ -5,19 +5,19 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ChatScreen">
+      <SelectionState runConfigName="PreviewStatsSelection">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="MealPreferenceSelectionUIPreview">
+      <SelectionState runConfigName="PreviewGlucoseTestTypeList">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewTimePicker">
+      <SelectionState runConfigName="PreviewMedicineTimeList">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ImagePagerPreview">
+      <SelectionState runConfigName="PreviewMedicineFrequencyList">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewCarouselView">
+      <SelectionState runConfigName="PreviewTimeDurationCard">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

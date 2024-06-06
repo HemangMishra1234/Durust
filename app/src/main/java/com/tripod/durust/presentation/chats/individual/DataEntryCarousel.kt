@@ -1,4 +1,5 @@
-package com.tripod.durust.presentation.datacollection
+package com.tripod.durust.presentation.chats.individual
+
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -44,8 +45,8 @@ fun PreviewCarouselView() {
         .background(Color(0xFF7788F4)),
         contentAlignment = Alignment.Center) {
 
-        ExercisePreferenceUI(
-            inactiveValue = ExerciseType.GYM,
+        DataEntryCarouselBase(
+            inactiveValue = DataEntryCarouselEntity.FOOD,
             isActive = true,
             modifier = Modifier
                 .width(280.dp)
@@ -57,10 +58,10 @@ fun PreviewCarouselView() {
 }
 
 @Composable
-fun ExercisePreferenceUI(inactiveValue: ExerciseType, modifier: Modifier, isActive: Boolean, onExerciseSelected: (ExerciseType) -> Unit) {
-    val exercises = if(isActive)ExerciseType.entries else listOf(inactiveValue)
-    val pagerState = rememberPagerState(){exercises.size}
-    var selectedExercise = exercises[pagerState.currentPage]
+fun DataEntryCarouselBase(inactiveValue: DataEntryCarouselEntity, modifier: Modifier, isActive: Boolean, onDataEntrySelected: (DataEntryCarouselEntity) -> Unit) {
+    val dataEntries = if(isActive)DataEntryCarouselEntity.values().toList() else listOf(inactiveValue)
+    val pagerState = rememberPagerState(){dataEntries.size}
+    var selectedDataEntry = dataEntries[pagerState.currentPage]
 
     HorizontalPager(
         state = pagerState,
@@ -88,18 +89,19 @@ fun ExercisePreferenceUI(inactiveValue: ExerciseType, modifier: Modifier, isActi
                 .padding(8.dp)
                 .fillMaxSize()
         ) {
-            ImageCard(imageNumber = exercises[page], isSelected = (selectedExercise == exercises[page]), modifier = Modifier)
+            ImageCard(imageNumber = dataEntries[page], isSelected = (selectedDataEntry == dataEntries[page]), modifier = Modifier)
         }
     }
 
     // Automatically select the center image
     LaunchedEffect(pagerState.currentPage) {
-        selectedExercise = exercises[pagerState.currentPage]
-        onExerciseSelected(selectedExercise)
+        selectedDataEntry = dataEntries[pagerState.currentPage]
+        onDataEntrySelected(selectedDataEntry)
     }
 }
+
 @Composable
-fun ImageCard(imageNumber: ExerciseType,isSelected: Boolean, modifier: Modifier) {
+fun ImageCard(imageNumber: DataEntryCarouselEntity, isSelected: Boolean, modifier: Modifier) {
     Column {
         Box(modifier = Modifier
             .width(if (isSelected) 144.57143.dp else 144.dp)
@@ -123,7 +125,7 @@ fun ImageCard(imageNumber: ExerciseType,isSelected: Boolean, modifier: Modifier)
             ) {
                 Text(
                     textAlign = TextAlign.Center,
-                    text = imageNumber.exerciseName,
+                    text = imageNumber.displayName,
                     style = TextStyle(
                         fontSize = 16.sp,
                         fontFamily = bodyFontFamily,
@@ -142,16 +144,16 @@ fun ImageCard(imageNumber: ExerciseType,isSelected: Boolean, modifier: Modifier)
 
     }
 }
-
 private fun lerp(start: Float, stop: Float, fraction: Float): Float {
     return (start * (1 - fraction) + stop * fraction)
 }
 
 
-enum class ExerciseType(val exerciseName: String, val imageId: Int, val metValue: Double) {
-    SPORTS("Sports", R.drawable.excercisesports, 7.0),
-    GYM("Gym", R.drawable.excercisegym, 5.0),
-    YOGA("Yoga", R.drawable.excerciseyogs, 3.0),
-    WALKING("Walking", R.drawable.walking5, 3.5),
-    RUNNING("Running", R.drawable.excercise_running, 7.0),
+enum class DataEntryCarouselEntity(val displayName: String, val imageId: Int) {
+    FOOD("Food", R.drawable.foodjpg),
+    EXERCISE("Exercise", R.drawable.deexcercise),
+    SLEEP("Sleep", R.drawable.desleep),
+    MEDICINE("Medicine", R.drawable.demedicine),
+    YOUR_STATS("Your Stats", R.drawable.deyourstats),
+    WATER("Water", R.drawable.dewatericon)
 }

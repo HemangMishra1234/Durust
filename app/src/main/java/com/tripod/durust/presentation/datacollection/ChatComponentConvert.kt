@@ -2,136 +2,136 @@ package com.tripod.durust.presentation.datacollection
 
 import com.tripod.durust.data.DateEntity
 
-fun ChatComponentEntity.toChatComponent(): ChatComponent {
+fun ChatComponentEntity.toChatComponent(): OnBoardingChatComponent {
     return when (type) {
-        ChatComponentType.Name -> ChatComponent.NameInputText(id, response = content)
-        ChatComponentType.Gender -> ChatComponent.GenderInputUI(
+        ChatComponentType.Name -> OnBoardingChatComponent.NameInputText(id, response = content)
+        ChatComponentType.Gender -> OnBoardingChatComponent.GenderInputUI(
             id,
             gender = GenderEntity.valueOf(content)
         )
 
-        ChatComponentType.Weight -> ChatComponent.WeightInput(id, weight = content.toInt())
+        ChatComponentType.Weight -> OnBoardingChatComponent.WeightInput(id, weight = content.toInt())
         ChatComponentType.Birthday -> {
             val dateParts = content.split("-").map { it.toInt() }
-            ChatComponent.BirthdayInput(
+            OnBoardingChatComponent.BirthdayInput(
                 id,
                 date = DateEntity(dateParts[0], dateParts[1], dateParts[2])
             )
         }
 
-        ChatComponentType.Height -> ChatComponent.HeightInput(id, height = content)
-        ChatComponentType.ExerciseFrequency -> ChatComponent.ExerciseFrequencyInput(
+        ChatComponentType.Height -> OnBoardingChatComponent.HeightInput(id, height = content)
+        ChatComponentType.ExerciseFrequency -> OnBoardingChatComponent.ExerciseFrequencyInput(
             id,
             frequency = content.toInt()
         )
 
-        ChatComponentType.PreferredExercise -> ChatComponent.PreferredExerciseInput(
+        ChatComponentType.PreferredExercise -> OnBoardingChatComponent.PreferredExerciseInput(
             id,
             exercise = ExerciseType.valueOf(content)
         )
 
-        ChatComponentType.StepCount -> ChatComponent.StepCountInput(
+        ChatComponentType.StepCount -> OnBoardingChatComponent.StepCountInput(
             id,
             steps = StepsInputEntity.valueOf(content)
         )
 
-        ChatComponentType.MealPreference -> ChatComponent.MealPreference(
+        ChatComponentType.MealPreference -> OnBoardingChatComponent.MealPreference(
             id,
             preference = MealPreferenceEntity.valueOf(content)
         )
 
-        ChatComponentType.CalorieIntake -> ChatComponent.CalorieIntake(
+        ChatComponentType.CalorieIntake -> OnBoardingChatComponent.CalorieIntake(
             id,
             calories = content.toInt()
         )
 
-        ChatComponentType.SleepSchedule -> ChatComponent.SleepSchedule(
+        ChatComponentType.SleepSchedule -> OnBoardingChatComponent.SleepSchedule(
             id,
             schedule = stringToWakeSleepEntity(content)
         )
 
-        ChatComponentType.HealthIssues -> ChatComponent.HealthIssues(
+        ChatComponentType.HealthIssues -> OnBoardingChatComponent.HealthIssues(
             id,
             issues = HealthCondition.valueOf(content)
         )
 
-        ChatComponentType.RoutineCheckUpFrequency -> ChatComponent.RoutineCheckUpFrequency(
+        ChatComponentType.RoutineCheckUpFrequency -> OnBoardingChatComponent.RoutineCheckUpFrequency(
             id,
             frequency = CheckUpFrequency.valueOf(content)
         )
     }
 }
 
-fun ChatComponent.toChatComponentEntity(): ChatComponentEntity {
+fun OnBoardingChatComponent.toChatComponentEntity(): ChatComponentEntity {
     return when (this) {
-        is ChatComponent.NameInputText -> ChatComponentEntity(
+        is OnBoardingChatComponent.NameInputText -> ChatComponentEntity(
             id,
             ChatComponentType.Name,
             content = response
         )
 
-        is ChatComponent.GenderInputUI -> ChatComponentEntity(
+        is OnBoardingChatComponent.GenderInputUI -> ChatComponentEntity(
             id,
             ChatComponentType.Gender,
             gender.displayName
         )
 
-        is ChatComponent.WeightInput -> ChatComponentEntity(
+        is OnBoardingChatComponent.WeightInput -> ChatComponentEntity(
             id,
             ChatComponentType.Weight,
             weight.toString()
         )
 
-        is ChatComponent.BirthdayInput -> ChatComponentEntity(
+        is OnBoardingChatComponent.BirthdayInput -> ChatComponentEntity(
             id,
             ChatComponentType.Birthday,
             "${date.day}-${date.month}-${date.year}"
         )
 
-        is ChatComponent.HeightInput -> ChatComponentEntity(id, ChatComponentType.Height, height)
-        is ChatComponent.ExerciseFrequencyInput -> ChatComponentEntity(
+        is OnBoardingChatComponent.HeightInput -> ChatComponentEntity(id, ChatComponentType.Height, height)
+        is OnBoardingChatComponent.ExerciseFrequencyInput -> ChatComponentEntity(
             id,
             ChatComponentType.ExerciseFrequency,
             frequency.toString()
         )
 
-        is ChatComponent.PreferredExerciseInput -> ChatComponentEntity(
+        is OnBoardingChatComponent.PreferredExerciseInput -> ChatComponentEntity(
             id,
             ChatComponentType.PreferredExercise,
             exercise.exerciseName
         )
 
-        is ChatComponent.StepCountInput -> ChatComponentEntity(
+        is OnBoardingChatComponent.StepCountInput -> ChatComponentEntity(
             id,
             ChatComponentType.StepCount,
             steps.displayName
         )
 
-        is ChatComponent.MealPreference -> ChatComponentEntity(
+        is OnBoardingChatComponent.MealPreference -> ChatComponentEntity(
             id,
             ChatComponentType.MealPreference,
             preference.displayName
         )
 
-        is ChatComponent.CalorieIntake -> ChatComponentEntity(
+        is OnBoardingChatComponent.CalorieIntake -> ChatComponentEntity(
             id,
             ChatComponentType.CalorieIntake,
             calories.toString()
         )
 
-        is ChatComponent.SleepSchedule -> ChatComponentEntity(
+        is OnBoardingChatComponent.SleepSchedule -> ChatComponentEntity(
             id,
             ChatComponentType.SleepSchedule,
             wakeSleepEntityToString(schedule)
         )
 
-        is ChatComponent.HealthIssues -> ChatComponentEntity(
+        is OnBoardingChatComponent.HealthIssues -> ChatComponentEntity(
             id,
             ChatComponentType.HealthIssues,
             issues.displayName
         )
 
-        is ChatComponent.RoutineCheckUpFrequency -> ChatComponentEntity(
+        is OnBoardingChatComponent.RoutineCheckUpFrequency -> ChatComponentEntity(
             id,
             ChatComponentType.RoutineCheckUpFrequency,
             frequency.displayName
