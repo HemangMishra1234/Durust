@@ -27,7 +27,7 @@ fun TimeMarkers() {
     val currentHour = currentTime.hour
 
     val timesList = List(5) { currentHour - 2 + it }.map { hour ->
-        val validHour = hour % 24
+        val validHour = if (hour < 0) 0 else hour % 24
         currentTime.withHour(validHour).format(formatter)
     }
 
