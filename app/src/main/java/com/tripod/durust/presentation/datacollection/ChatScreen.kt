@@ -190,6 +190,7 @@ fun ChatScreen(viewModel: ChatComponentViewModel) {
                                 ) {
                                     _,_->
                                 }
+                                else ->{}
                             }
                         }
                         Spacer(modifier = Modifier.height(18.dp))

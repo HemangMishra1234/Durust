@@ -1,5 +1,7 @@
 package com.tripod.durust.presentation.chats.data
 
+import com.tripod.durust.data.DateEntity
+import com.tripod.durust.presentation.chats.individual.AppointmentMenu
 import com.tripod.durust.presentation.chats.individual.DataEntryCarouselEntity
 import com.tripod.durust.presentation.chats.individual.GlucoseTestType
 import com.tripod.durust.presentation.chats.individual.MedicineFrequency
@@ -9,6 +11,7 @@ import com.tripod.durust.presentation.chats.individual.StatsEntity
 import com.tripod.durust.presentation.datacollection.ExerciseType
 import com.tripod.durust.presentation.datacollection.TimeEntity
 import com.tripod.durust.presentation.datacollection.WakeSleepEntity
+import com.tripod.durust.presentation.home.individuals.DoctorProfession
 
 sealed class BotComponent {
     data class MenuState(
@@ -123,6 +126,56 @@ sealed class BotComponent {
         val glucose: Int
     ) : BotComponent()
 
+    data class DEMealTrackState(
+        val id: String,
+        val meal: String
+    ) : BotComponent()
+
+    data class DEWaterTrackState(
+        val id: String,
+        val water: Int
+    ) : BotComponent()
+
+    data class AppmtList(
+        val id: String,
+        val appList: AppointmentMenu
+    ): BotComponent()
+
+    data class AppmtTime(
+        val id: String,
+        val time: TimeEntity
+    ): BotComponent()
+
+    data class AppmtDate(
+        val id: String,
+        val date: DateEntity
+    ): BotComponent()
+
+    data class AppmtDoctor(
+        val id: String,
+        val doctor: String
+    ): BotComponent()
+
+    data class AppmtSpeciality(
+        val id: String,
+        val speciality: DoctorProfession
+    ): BotComponent()
+
+    data class MoodState(
+        val id: String,
+        val mood: String
+    ): BotComponent()
+
+    data class AppointmentHistoryState(
+        val id: String,
+        val appointmentHistory: String
+    ): BotComponent()
+
+    data class UpcomingAppointmentsState(
+        val id: String,
+        val upcomingAppointments: String
+    ): BotComponent()
+
 }
 
 data class GeminiData(
@@ -144,7 +197,17 @@ data class GeminiData(
     val systolicPressure: Int? = null,
     val diastolicPressure: Int? = null,
     val glucoseTestType: GlucoseTestType? = null,
-    val glucoseLevel: Int? = null
+    val glucoseLevel: Int? = null,
+    val meal: String? = null,
+    val water: Int? = null,
+    val appList: AppointmentMenu? = null,
+    val appTime: TimeEntity? = null,
+    val appDate: DateEntity? = null,
+    val appDoctor: String? = null,
+    val appSpeciality: DoctorProfession? = null,
+    val mood: String? = null,
+    val appointmentHistory: String? = null,
+    val upcomingAppointments: String? = null
 )
 
 
@@ -168,5 +231,15 @@ enum class BotUiState(val stateSerialNo: Int){
     DE_STATS_BLOOD_PRESSURE_SYSTOLIC_ENTRY_STATE(17),
     DE_STATS_BLOOD_PRESSURE_DIASTOLIC_ENTRY_STATE(18),
     DE_STATS_GLUCOSE_TEST_TYPE_STATE(19),
-    DE_STATS_GLUCOSE_ENTRY_STATE(20)
+    DE_STATS_GLUCOSE_ENTRY_STATE(20),
+    DE_MEAL_TRACK_STATE(21),
+    DE_WATER_TRACK_STATE(22),
+    APPOINTMENT_LIST(23),
+    APPOINTMENT_TIME(24),
+    APPOINTMENT_DATE(25),
+    APPOINTMENT_DOCTOR(26),
+    APPOINTMENT_SPECIALITY(27),
+    MOOD(28),
+    APPOINTMENT_HISTORY(29),
+    UPCOMING_APPOINTMENTS(30)
 }

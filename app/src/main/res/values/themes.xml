@@ -5,7 +5,7 @@
     <style name="SplashScreen" parent="Theme.SplashScreen">
         <item name="android:windowFullscreen">true</item>
         <item name="windowSplashScreenBackground">@color/colorPrimary</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/appiconflash</item>
         <item name="postSplashScreenTheme">@style/Theme.Durust</item>
     </style>
 </resources>

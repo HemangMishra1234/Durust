@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.tripod.durust.presentation.chats.data.BotComponent
 import com.tripod.durust.presentation.chats.individual.DEStatsListBase
 import com.tripod.durust.presentation.chats.individual.GlucoseTestTypeList
@@ -165,6 +166,7 @@ fun DEGlucoseTestTypeMainUI(
     viewModel: GeminiViewModel,
     isActive: Boolean
 ) {
+
     // Step 1: Create a mutable state for the selected test type
     var selectedTestType by remember {
         mutableStateOf(botComponent?.glucoseTestType)

@@ -30,9 +30,8 @@ import com.tripod.durust.ui.theme.bodyFontFamily
 enum class MenuOptions(val displayName: String) {
     DATA_ENTRY("Data Entry"),
     RECOMMENDATIONS("Recommendations"),
-    NAVIGATION("Navigation"),
     MOOD_TODAY("Mood Today"),
-    APPOINTMENT("Appointment"),
+    APPOINTMENT("Appointment Records"),
 }
 
 @OptIn(ExperimentalLayoutApi::class)

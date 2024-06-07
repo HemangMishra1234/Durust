@@ -7,8 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +34,8 @@ import com.tripod.durust.data.AndroidAlarmSchedular
 import com.tripod.durust.data.HealthConnectAvailability
 import com.tripod.durust.data.HealthConnectManager
 import com.tripod.durust.data.PrimaryUserData
+import com.tripod.durust.data.AppointmentDataUpload
+import com.tripod.durust.data.AppointmentEntity
 import com.tripod.durust.domain.repositories.PrimaryUserDataRepo
 import com.tripod.durust.presentation.Loading.LoadingScreen
 import com.tripod.durust.presentation.Loading.LoadingViewModel
@@ -43,10 +45,16 @@ import com.tripod.durust.presentation.chats.BotScreen
 import com.tripod.durust.presentation.chats.GeminiViewModel
 import com.tripod.durust.presentation.chats.GeminiViewModelFactory
 import com.tripod.durust.presentation.chats.NavBotScreen
+import com.tripod.durust.presentation.chats.data.BotUiState
 import com.tripod.durust.presentation.datacollection.ChatComponentViewModel
 import com.tripod.durust.presentation.datacollection.ChatComponentViewModelFactory
 import com.tripod.durust.presentation.datacollection.ChatScreen
 import com.tripod.durust.presentation.datacollection.NavChatScreen
+import com.tripod.durust.presentation.home.DashboardViewModel
+import com.tripod.durust.presentation.home.DashboardViewModelFactory
+import com.tripod.durust.presentation.home.HomeScreen
+import com.tripod.durust.presentation.home.NavHomeScreen
+import com.tripod.durust.presentation.home.individuals.TaskEntity
 import com.tripod.durust.presentation.login.createaccount.CreateAccountPasswordScreen
 import com.tripod.durust.presentation.login.createaccount.CreateAccountViewModel
 import com.tripod.durust.presentation.login.createaccount.CreateAccountViewModelFactory
@@ -67,10 +75,13 @@ class MainActivity : ComponentActivity() {
     val auth = FirebaseAuth.getInstance()
     val primaryUserDataRepo = PrimaryUserDataRepo(auth)
     val loadingViewModel = LoadingViewModelFactory(auth).create(LoadingViewModel::class.java)
+    val dashboardViewModel = DashboardViewModelFactory(auth).create(DashboardViewModel::class.java)
 
     companion object{
     var alarmItem: AlarmItem? = null
         var primaryUserData = mutableStateOf<PrimaryUserData?>(null)
+        var tasks = mutableStateOf(emptyList<TaskEntity>())
+        var appointments = mutableStateOf(emptyList<AppointmentEntity>())
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         // Access your API key as a Build Configuration variable
@@ -80,7 +91,7 @@ class MainActivity : ComponentActivity() {
         val schedular= AndroidAlarmSchedular(this)
         val healthConnectManager = (application as BaseApplication).healthConnectManager
         val chatComponentViewModel = ChatComponentViewModelFactory(primaryUserDataRepo).create(ChatComponentViewModel::class.java)
-        val geminiViewModel = GeminiViewModelFactory().create(GeminiViewModel::class.java)
+        val geminiViewModel = GeminiViewModelFactory(auth).create(GeminiViewModel::class.java)
         enableEdgeToEdge()
         setContent {
             DurustTheme {
@@ -98,7 +109,7 @@ class MainActivity : ComponentActivity() {
 //                        AlarmUI(schedular = schedular)
 //                        LogInSuccess(navController)
 //                        VerificationSuccess(navController)
-                        BotScreen(geminiViewModel = geminiViewModel)
+                        BotScreen(navController = navController,geminiViewModel = geminiViewModel)
 //                        ChatScreen(chatComponentViewModel)
 //                        CircleRevealPager()
 //                        LiquidPagerScreen(context = this@MainActivity)
@@ -146,8 +157,25 @@ class MainActivity : ComponentActivity() {
                     composable<NavChatScreen> {
                         ChatScreen(viewModel = chatComponentViewModel)
                     }
-                    composable<NavBotScreen> {
-                        BotScreen(geminiViewModel = geminiViewModel)
+                    composable<NavBotScreen>(
+                        enterTransition = {
+                            slideInHorizontally(animationSpec = tween(700),
+                                initialOffsetX = { fullWidth->fullWidth }
+                            )
+                        },
+                        exitTransition = {
+                            slideOutHorizontally(animationSpec = tween(500),
+                                targetOffsetX = { fullWidth->fullWidth }
+                            )
+                        }
+                    ) {
+                        val args = it.toRoute<NavBotScreen>()
+                        geminiViewModel.chatUiState.value = BotUiState.valueOf(args.initialUiState)
+                        BotScreen(navController,geminiViewModel = geminiViewModel)
+                    }
+                    composable<NavHomeScreen>{
+                        val args = it.toRoute<NavHomeScreen>()
+                        HomeScreen(args.initialPage, navController, dashboardViewModel)
                     }
                 }
             }

@@ -2,18 +2,27 @@ package com.tripod.durust.presentation.chats
 
 import android.util.Log
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
+import com.google.firebase.auth.FirebaseAuth
 import com.tripod.durust.BuildConfig
 import com.tripod.durust.GeminiUiState
+import com.tripod.durust.data.AppointmentDataUpload
+import com.tripod.durust.data.AppointmentEntity
+import com.tripod.durust.data.DateEntity
+import com.tripod.durust.domain.repositories.AppointmentRepository
+import com.tripod.durust.domain.repositories.GeminiChatRepository
 import com.tripod.durust.presentation.MainActivity
 import com.tripod.durust.presentation.chats.data.BotComponent
 import com.tripod.durust.presentation.chats.data.BotUiState
 import com.tripod.durust.presentation.chats.data.GeminiData
+import com.tripod.durust.presentation.chats.individual.AppointmentMenu
 import com.tripod.durust.presentation.chats.individual.DataEntryCarouselEntity
 import com.tripod.durust.presentation.chats.individual.GlucoseTestType
 import com.tripod.durust.presentation.chats.individual.MedicineFrequency
@@ -26,20 +35,24 @@ import com.tripod.durust.presentation.datacollection.TimeEntity
 import com.tripod.durust.presentation.datacollection.WakeSleepEntity
 import com.tripod.durust.presentation.datacollection.formatTime
 import com.tripod.durust.presentation.datacollection.getTime
+import com.tripod.durust.presentation.home.individuals.DoctorProfession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class GeminiViewModel : ViewModel() {
+class GeminiViewModel(auth: FirebaseAuth) : ViewModel() {
     private val _uiState: MutableStateFlow<GeminiUiState> =
         MutableStateFlow(GeminiUiState.Initial)
     val geminiUiState: StateFlow<GeminiUiState> =
         _uiState.asStateFlow()
     val chatUiState = mutableStateOf(BotUiState.MENU)
-    var currentPrompt = GeminiPrompts.DEFAULT
+    var appointments by MainActivity.appointments
+//    var currentPrompt = GeminiPrompts.DEFAULT
     val needScroll = mutableStateOf(false)
+    private val appointmentRepository = AppointmentRepository(auth)
+    private val chatRepository = GeminiChatRepository(auth)
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-1.5-flash-latest",
@@ -54,8 +67,14 @@ class GeminiViewModel : ViewModel() {
     fun addHistory(comp: BotComponent) {
         history.value += listOf(comp)
         needScroll.value = true
+        uploadChat(comp)
     }
 
+    fun uploadChat(comp: BotComponent){
+        viewModelScope.launch {
+            chatRepository.uploadChatData(comp)
+        }
+    }
 
     fun onClick(snackbarHostState: SnackbarHostState, prompt: String) {
         if (prompt.isEmpty()) {
@@ -222,7 +241,7 @@ class GeminiViewModel : ViewModel() {
 
                 BotUiState.DE_STATS_BLOOD_PRESSURE_SYSTOLIC_ENTRY_STATE -> {
                     if (data.value.systolicPressure == null) {
-                        showSnackBar(snackbarHostState, "Please enter a systolic pressure")
+                        showSnackBar(snackbarHostState, "Please enter a valid systolic pressure")
                         return
                     }
                     onDEStatsBloodPressureSystolicEntryStateSelected(data.value.systolicPressure!!)
@@ -231,7 +250,7 @@ class GeminiViewModel : ViewModel() {
 
                 BotUiState.DE_STATS_BLOOD_PRESSURE_DIASTOLIC_ENTRY_STATE -> {
                     if (data.value.diastolicPressure == null) {
-                        showSnackBar(snackbarHostState, "Please enter a diastolic pressure")
+                        showSnackBar(snackbarHostState, "Please enter a valid diastolic pressure")
                         return
                     }
                     onDEStatsBloodPressureDiastolicEntryStateSelected(data.value.diastolicPressure!!)
@@ -249,10 +268,82 @@ class GeminiViewModel : ViewModel() {
 
                 BotUiState.DE_STATS_GLUCOSE_ENTRY_STATE -> {
                     if (data.value.glucoseLevel == null) {
-                        showSnackBar(snackbarHostState, "Please enter a glucose level")
+                        showSnackBar(snackbarHostState, "Please enter a valid glucose level")
                         return
                     }
                     onDEStatsGlucoseEntryStateSelected(data.value.glucoseLevel!!)
+                    return
+                }
+
+                BotUiState.DE_MEAL_TRACK_STATE -> {
+                    if (data.value.meal == null) {
+                        showSnackBar(snackbarHostState, "Please enter a meal")
+                        return
+                    }
+                    onDEMealTrackStateSelected(data.value.meal!!)
+                    return
+                }
+
+                BotUiState.DE_WATER_TRACK_STATE -> {
+                    if (data.value.water == null) {
+                        showSnackBar(snackbarHostState, "Please enter the amount of water in numbers")
+                        return
+                    }
+                    onWaterTrackStateSelected(data.value.water!!)
+                    return
+                }
+
+                BotUiState.APPOINTMENT_LIST -> {
+                    if (data.value.appList == null) {
+                        showSnackBar(snackbarHostState, "Please select an option from the list")
+                        return
+                    }
+                    onAppointmentListDisplay(data.value.appList!!)
+                    return
+                }
+
+                BotUiState.APPOINTMENT_TIME -> {
+                    if (data.value.appTime == null) {
+                        showSnackBar(snackbarHostState, "Please enter the appointment time")
+                        return
+                    }
+                    onAppointmentTimeSelected(data.value.appTime!!)
+                    return
+                }
+
+                BotUiState.APPOINTMENT_DATE -> {
+                    if (data.value.appDate == null) {
+                        showSnackBar(snackbarHostState, "Please enter the appointment date")
+                        return
+                    }
+                    onAppointmentDateSelected(data.value.appDate!!)
+                    return
+                }
+
+                BotUiState.APPOINTMENT_SPECIALITY -> {
+                    if (data.value.appSpeciality == null) {
+                        showSnackBar(snackbarHostState, "Please select a speciality")
+                        return
+                    }
+                    onAppmtSpecialitySelected(data.value.appSpeciality!!)
+                    return
+                }
+
+                BotUiState.APPOINTMENT_DOCTOR -> {
+                    if (data.value.appDoctor == null) {
+                        showSnackBar(snackbarHostState, "Please enter the doctor's name")
+                        return
+                    }
+                    onAppmtDoctorSelected(data.value.appDoctor!!)
+                    return
+                }
+
+                BotUiState.MOOD -> {
+                    if (data.value.mood == null) {
+                        showSnackBar(snackbarHostState, "Please enter your mood")
+                        return
+                    }
+                    onMoodSelected(data.value.mood!!)
                     return
                 }
 
@@ -274,7 +365,8 @@ class GeminiViewModel : ViewModel() {
 
 
     fun sendPrompt(
-        prompt: String
+        prompt: String,
+        basePrompts: GeminiPrompts = GeminiPrompts.DEFAULT
     ) {
         data.value = GeminiData()
         _uiState.value = GeminiUiState.Loading
@@ -284,7 +376,7 @@ class GeminiViewModel : ViewModel() {
             try {
                 val response = generativeModel.generateContent(
                     content {
-                        text(prompt)
+                        text(basePrompts.prompt+prompt)
                     }
                 )
                 _uiState.value = GeminiUiState.Loading
@@ -330,9 +422,22 @@ class GeminiViewModel : ViewModel() {
         addHistory(BotComponent.UserResponseState(getTime().toString(), menuOption.displayName))
         needScroll.value = true
         //Implement the logic to handle the menu option selected
-        if (menuOption == MenuOptions.DATA_ENTRY) {
-            chatUiState.value = BotUiState.DE_CAROUSEL_STATE
-            return
+        when (menuOption) {
+            MenuOptions.DATA_ENTRY -> {
+                chatUiState.value = BotUiState.DE_CAROUSEL_STATE
+            }
+
+            MenuOptions.RECOMMENDATIONS -> {
+                sendPrompt("recommendations", GeminiPrompts.RECOMMENDATION)
+            }
+
+            MenuOptions.MOOD_TODAY -> {
+                chatUiState.value = BotUiState.MOOD
+            }
+
+            MenuOptions.APPOINTMENT -> {
+                chatUiState.value = BotUiState.APPOINTMENT_LIST
+            }
         }
     }
 
@@ -367,11 +472,11 @@ class GeminiViewModel : ViewModel() {
             }
 
             DataEntryCarouselEntity.FOOD -> {
-                //TODO: Implement the logic for food
+                chatUiState.value = BotUiState.DE_MEAL_TRACK_STATE
             }
 
             DataEntryCarouselEntity.WATER -> {
-                //TODO: Implement the logic for water
+                chatUiState.value = BotUiState.DE_WATER_TRACK_STATE
             }
         }
         //Step 4: Update the data
@@ -798,33 +903,202 @@ class GeminiViewModel : ViewModel() {
         // Step 1: Add the selected glucose level to the history
         addHistory(BotComponent.DEStatsGlucoseEntryState(getTime().toString(), glucose))
 
-        // Step 2: Add response to the history
-//        addHistory(
-//            BotComponent.UserResponseState(
-//                id = getTime().toString(),
-//                response = glucose.toString()
-//            )
-//        )
-
-        // Step 3: Implement the logic to handle the selected glucose level
-        // Here, you might want to update the UI state based on the selected glucose level.
-        // For example, you might want to move to the next UI state after the glucose level is selected.
-        // This is just a placeholder. Replace it with your actual logic.
-        // Assuming the next state is MENU
         chatUiState.value = BotUiState.MENU
 
         // Step 4: Update the data
         makeGlucoseNull()
     }
+
+    private fun onDEMealTrackStateSelected(meal: String) {
+        // Step 1: Add the selected meal to the history
+
+        chatUiState.value = BotUiState.MENU
+
+        sendPrompt(prompt = meal, basePrompts = GeminiPrompts.MEAL)
+
+        // Step 4: Update the data
+        data.value = data.value.copy(meal = null)
+    }
+
+    private fun onWaterTrackStateSelected(water: Int) {
+        // Step 1: Add the selected water to the history
+        addHistory(BotComponent.DEWaterTrackState(getTime().toString(), water))
+
+        addHistory(
+            BotComponent.GeminiResponseState(
+                id = getTime().toString(),
+                response = "You drank $water l of water. Good job!"
+            )
+        )
+
+        chatUiState.value = BotUiState.MENU
+
+        // Step 4: Update the data
+        data.value = data.value.copy(water = null)
+    }
+
+    fun onAppointmentListDisplay(appointmentMenu: AppointmentMenu){
+        // Step 1: Add the selected appointment to the history
+        addHistory(BotComponent.AppmtList(getTime().toString(), appointmentMenu))
+
+        addHistory(BotComponent.UserResponseState(getTime().toString(), appointmentMenu.name))
+
+        when(appointmentMenu){
+            AppointmentMenu.UPCOMING_APPOINTMENT -> {
+                chatUiState.value = BotUiState.UPCOMING_APPOINTMENTS
+            }
+            AppointmentMenu.ADD_APPOINTMENT -> {
+                makeAppointmentDataNull()
+                chatUiState.value = BotUiState.APPOINTMENT_DATE
+            }
+            AppointmentMenu.APPOINTMENT_HISTORY -> {
+//                chatUiState.value = BotUiStat
+                chatUiState.value = BotUiState.APPOINTMENT_HISTORY
+            }
+        }
+        data.value = data.value.copy(appList = null)
+    }
+
+    private fun onAppointmentDateSelected(date: DateEntity) {
+        // Step 1: Add the selected date to the history
+        addHistory(BotComponent.AppmtDate(getTime().toString(), date))
+
+        // Step 2: Add response to the history
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = "Appointment Date: ${date.day}/${date.month}/${date.year}"
+            )
+        )
+
+        chatUiState.value = BotUiState.APPOINTMENT_TIME
+    }
+
+    private fun onAppointmentTimeSelected(time: TimeEntity) {
+        // Step 1: Add the selected time to the history
+        addHistory(BotComponent.AppmtTime(getTime().toString(), time))
+
+        // Step 2: Add response to the history
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = "Appointment Time: ${time.hour} hours and ${time.minute} minutes"
+            )
+        )
+
+        // Step 3: Implement the logic to handle the selected time
+        // For example, you might want to move to the next UI state after the appointment time is selected.
+        // This is just a placeholder. Replace it with your actual logic.
+        chatUiState.value = BotUiState.APPOINTMENT_SPECIALITY
+
+    }
+
+    private fun onAppmtSpecialitySelected(speciality: DoctorProfession) {
+        // Step 1: Add the selected speciality to the history
+        addHistory(BotComponent.AppmtSpeciality(getTime().toString(), speciality))
+
+        // Step 2: Add response to the history
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = "Selected Speciality: ${speciality.professionName}"
+            )
+        )
+
+        // For example, you might want to move to the next UI state after the speciality is selected.
+        // This is just a placeholder. Replace it with your actual logic.
+        chatUiState.value = BotUiState.APPOINTMENT_DOCTOR
+
+    }
+
+    private fun onAppmtDoctorSelected(doctor: String) {
+        // Step 1: Add the selected doctor to the history
+        addHistory(BotComponent.AppmtDoctor(getTime().toString(), doctor))
+
+        // Step 2: Add response to the history
+        addHistory(
+            BotComponent.UserResponseState(
+                id = getTime().toString(),
+                response = "Doctor: $doctor"
+            )
+        )
+
+        // Step 3: Implement the logic to handle the selected doctor
+        //TODO Save the data here
+        saveAppointement()
+        addHistory(
+            BotComponent.GeminiResponseState(
+                getTime().toString(),
+                "Appointment added successfully."
+            )
+        )
+        // For example, you might want to move to the next UI state after the doctor is selected.
+        // This is just a placeholder. Replace it with your actual logic.
+        chatUiState.value = BotUiState.MENU
+
+        // Step 4: Update the data
+        data.value = data.value.copy(appDoctor = null)
+        makeAppointmentDataNull()
+    }
+
+    private fun onMoodSelected(mood: String) {
+        // Step 1: Add the selected mood to the history
+
+        // Step 2: Add response to the history
+
+
+        sendPrompt(prompt = mood, basePrompts = GeminiPrompts.MOOD)
+        // Step 3: Implement the logic to handle the selected mood
+
+        // For example, you might want to move to the next UI state after the mood is selected.
+        // This is just a placeholder. Replace it with your actual logic.
+
+        // Step 4: Update the data
+        data.value = data.value.copy(mood = null)
+    }
+
+    fun makeAppointmentDataNull(){
+        data.value = data.value.copy(appDate = null)
+        data.value = data.value.copy(appTime = null)
+        data.value = data.value.copy(appSpeciality = null)
+        data.value = data.value.copy(appDoctor = null)
+    }
+
+    fun saveAppointement(){
+        val currentApp = appointments.toMutableList()
+        if(data.value.appDate == null || data.value.appTime == null || data.value.appSpeciality == null || data.value.appDoctor == null){
+            Log.e("GeminiViewModel", "Some error occurred saving appointment")
+            return
+        }
+        uploadAppointment(AppointmentEntity(
+            date = data.value.appDate!!,
+            time = data.value.appTime!!,
+            doctorSpeciality = data.value.appSpeciality!!,
+            doctorName = data.value.appDoctor!!
+        ))
+        currentApp.add(AppointmentEntity(
+            date = data.value.appDate!!,
+            time = data.value.appTime!!,
+            doctorSpeciality = data.value.appSpeciality!!,
+            doctorName = data.value.appDoctor!!))
+        appointments = currentApp
+    }
+
+    fun uploadAppointment(appointmentEntity: AppointmentEntity){
+        viewModelScope.launch {
+            val result = appointmentRepository.uploadAppointment(appointmentEntity)
+        }
+    }
+
 }
 
 
-class GeminiViewModelFactory(
+class GeminiViewModelFactory(val auth: FirebaseAuth
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GeminiViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return GeminiViewModel() as T
+            return GeminiViewModel(auth) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

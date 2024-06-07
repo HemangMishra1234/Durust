@@ -9,7 +9,7 @@ import androidx.navigation.NavController
 import com.tripod.durust.data.PrimaryUserData
 import com.tripod.durust.domain.repositories.PrimaryUserDataRepo
 import com.tripod.durust.presentation.MainActivity
-import com.tripod.durust.presentation.chats.NavBotScreen
+import com.tripod.durust.presentation.home.NavHomeScreen
 import kotlinx.coroutines.launch
 import java.util.EnumSet.range
 
@@ -57,7 +57,7 @@ class ChatComponentViewModel(val userDataRepo: PrimaryUserDataRepo): ViewModel()
             }
         }else{
             savePersonalData()
-            navController?.navigate(NavBotScreen)
+            navController?.navigate(NavHomeScreen())
         }
     }
 

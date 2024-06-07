@@ -150,7 +150,7 @@ fun WakeUpTimeAndBedTime(
         }
         AnimatedVisibility(visible = !isEnabled) {
             Text(
-                text = formatTime(initialSchedule.wakeTime),
+                text = formatTime(initialSchedule.sleepTime),
                 style = TextStyle(
                     fontSize = 15.sp,
                     fontFamily = bodyFontFamily,

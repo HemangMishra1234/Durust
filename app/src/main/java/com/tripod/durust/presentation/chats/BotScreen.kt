@@ -4,6 +4,7 @@ import ChatRow
 import NextImageButton
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -32,22 +36,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.tripod.durust.presentation.DEMedicineAddOneMoreMainUI
-import com.tripod.durust.presentation.DEMedicineFrequencyIsDailyMainUI
-import com.tripod.durust.presentation.DEMedicineNotificationMainUI
-import com.tripod.durust.presentation.DEMedicineNotificationTimeMainUI
-import com.tripod.durust.presentation.DEMedicineSearchMainUI
-import com.tripod.durust.presentation.DEMedicineTimeMainUI
-import com.tripod.durust.presentation.DEMedicineWeekdaysMainUI
+import androidx.navigation.NavController
+import com.tripod.durust.presentation.AppointmentHistoryMainUI
+import com.tripod.durust.presentation.AppointmentMenuMainUI
+import com.tripod.durust.presentation.AppointmentUpcomingMainUI
+import com.tripod.durust.presentation.DEAppointmentDateMainUI
+import com.tripod.durust.presentation.DEAppointmentDoctorMainUI
+import com.tripod.durust.presentation.DEAppointmentSpecialityMainUI
+import com.tripod.durust.presentation.DEAppointmentTimeMainUI
 import com.tripod.durust.presentation.chats.data.BotComponent
 import com.tripod.durust.presentation.chats.data.BotUiState
+import com.tripod.durust.presentation.home.NavHomeScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
-object NavBotScreen
+data class NavBotScreen(
+    val initialUiState: String = BotUiState.MENU.name
+)
 
 @Composable
 fun BotScreen(
+    navController: NavController,
     geminiViewModel: GeminiViewModel
 ) {
     var prompt by rememberSaveable { mutableStateOf("") }
@@ -77,12 +86,20 @@ fun BotScreen(
                 .fillMaxSize()
                 .background(color = Color(0xFF7788F4))
         ) {
+            Icon(imageVector = Icons.Default.Close, tint = Color.White, contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 8.dp)
+                    .clickable {
+                        navController.navigate(NavHomeScreen())
+                    })
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .padding(top = 16.dp, bottom = 90.dp)
             ) {
+
                 LazyColumn(
                     state = columnState,
                     modifier = Modifier
@@ -216,6 +233,62 @@ fun BotScreen(
                                     viewModel = geminiViewModel,
                                     isActive = false
                                 )
+
+                            is BotComponent.DEMealTrackState ->
+                                DEMealTrackMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.DEWaterTrackState ->
+                                DEWaterTrackMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.AppmtList ->
+                                AppointmentMenuMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.AppmtDate ->
+                                DEAppointmentDateMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.AppmtTime ->
+                                DEAppointmentTimeMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.AppmtDoctor ->
+                                DEAppointmentDoctorMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.AppmtSpeciality ->
+                                DEAppointmentSpecialityMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
+
+                            is BotComponent.MoodState ->
+                                DEMoodTrackMainUI(
+                                    botComponent = item,
+                                    viewModel = geminiViewModel,
+                                    isActive = false
+                                )
                             else -> {}
                         }
                     }
@@ -335,6 +408,83 @@ fun BotScreen(
                                     viewModel = geminiViewModel,
                                     isActive = true
                                 )
+
+                            BotUiState.DE_MEAL_TRACK_STATE ->
+                                DEMealTrackMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.DE_WATER_TRACK_STATE ->
+                                DEWaterTrackMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.APPOINTMENT_LIST ->
+                                AppointmentMenuMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.APPOINTMENT_DATE ->
+                                DEAppointmentDateMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+
+                            BotUiState.APPOINTMENT_TIME -> {
+                                DEAppointmentTimeMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+                            }
+
+                            BotUiState.APPOINTMENT_DOCTOR -> {
+                                DEAppointmentDoctorMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+                            }
+
+                            BotUiState.APPOINTMENT_SPECIALITY -> {
+                                DEAppointmentSpecialityMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+                            }
+
+                            BotUiState.MOOD -> {
+                                DEMoodTrackMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+                            }
+
+                            BotUiState.APPOINTMENT_HISTORY -> {
+                                AppointmentHistoryMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+                            }
+
+                            BotUiState.UPCOMING_APPOINTMENTS -> {
+                                AppointmentUpcomingMainUI(
+                                    botComponent = null,
+                                    viewModel = geminiViewModel,
+                                    isActive = true
+                                )
+                            }
+
                             else -> {}
                         }
                     }

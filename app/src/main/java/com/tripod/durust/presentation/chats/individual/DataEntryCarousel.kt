@@ -144,7 +144,7 @@ fun ImageCard(imageNumber: DataEntryCarouselEntity, isSelected: Boolean, modifie
 
     }
 }
-private fun lerp(start: Float, stop: Float, fraction: Float): Float {
+fun lerp(start: Float, stop: Float, fraction: Float): Float {
     return (start * (1 - fraction) + stop * fraction)
 }
 
