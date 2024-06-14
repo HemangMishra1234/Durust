@@ -35,4 +35,10 @@ Welcome to Durust, your comprehensive health companion app designed to make mana
 - **Advanced Statistics:** Gain deeper insights with advanced statistical analysis based on the health data you provide.
 
 ## Screenshots
-
+<img src="screenshots/OnboardingPage.jpg" width="250" height="500"  alt="onboarding screen"/>
+<img src="screenshots/LoginPage.jpg" width="250" height="500"  alt="Login Screen"/>
+<img src="screenshots/RecommendationsChat.jpg" width="250" height="500"  alt="Recommendations Chat"/>
+<img src="screenshots/DataEntryChat.jpg" width="250" height="500"  alt="Data Entry Chat"/>
+<img src="screenshots/ExerciseChat.jpg" width="250" height="500"  alt="Exercise Chat"/>
+<img src="screenshots/ConsultPage.jpg" width="250" height="500"  alt="Consultation Chat"/>
+<img src="screenshots/StatsChat.jpg" width="250" height="500"  alt="Statistics Chat"/>
